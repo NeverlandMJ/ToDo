@@ -1,0 +1,13 @@
+CREATE TABLE users (
+    id UUID PRIMARY KEY,
+    user_name VARCHAR(255) NOT NULL DEFAULT '',
+    password VARCHAR(255) NOT NULL,
+    phone_number VARCHAR(100) NOT NULL UNIQUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    is_blocked BOOLEAN DEFAULT FALSE
+);
+
+
+
+

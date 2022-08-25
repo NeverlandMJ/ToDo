@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+option go_package = "github.com/NeverlandMJ/ToDo/user-service/v1/userpb";
+
+service UserService {
+    rpc SendCode(RequestPhone) returns (RequestPhone) {}
+    rpc RegisterUser(Code) returns (ResponseUser) {}
+}
+
+message RequestPhone {
+    string Phone = 1;
+}
+
+message Code {
+    string Phone = 1;
+    string Code = 2;
+}
+
+message ResponseUser {
+    string UserName = 2;
+    string Password = 3;
+}
