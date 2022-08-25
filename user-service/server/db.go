@@ -27,7 +27,7 @@ func (s Server) CreateUser(ctx context.Context, user entity.User) error {
 	_, err := s.db.ExecContext(ctx, `INSERT INTO users
 		(id, user_name, password, phone_number, created_at, updated_at, is_blocked)
 		VALUES ($1, $2, $3, $4, $5, $6, $7)
-	`)
+	`, user.ID, user.UserName, user.Password, user.Phone, user.CreatedAt, user.UpdatedAt, user.IsBlocked)
 	if err != nil {
 		return  err
 	}

@@ -4,12 +4,11 @@ import (
 	"net"
 
 	"github.com/NeverlandMJ/ToDo/user-service/config"
+	grpc_server "github.com/NeverlandMJ/ToDo/user-service/grpc"
 	"github.com/NeverlandMJ/ToDo/user-service/server"
 	"github.com/NeverlandMJ/ToDo/user-service/service"
 	"github.com/NeverlandMJ/ToDo/user-service/v1/userpb"
-	grpc_server "github.com/NeverlandMJ/ToDo/user-service/grpc"
 	"google.golang.org/grpc"
-	
 )
 
 func main() {

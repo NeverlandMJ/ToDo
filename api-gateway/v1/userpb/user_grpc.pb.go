@@ -36,7 +36,7 @@ func NewUserServiceClient(cc grpc.ClientConnInterface) UserServiceClient {
 
 func (c *userServiceClient) SendCode(ctx context.Context, in *RequestPhone, opts ...grpc.CallOption) (*RequestPhone, error) {
 	out := new(RequestPhone)
-	err := c.cc.Invoke(ctx, "/UserService/SendCode", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/userpb.UserService/SendCode", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -45,7 +45,7 @@ func (c *userServiceClient) SendCode(ctx context.Context, in *RequestPhone, opts
 
 func (c *userServiceClient) RegisterUser(ctx context.Context, in *Code, opts ...grpc.CallOption) (*ResponseUser, error) {
 	out := new(ResponseUser)
-	err := c.cc.Invoke(ctx, "/UserService/RegisterUser", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/userpb.UserService/RegisterUser", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -94,7 +94,7 @@ func _UserService_SendCode_Handler(srv interface{}, ctx context.Context, dec fun
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/UserService/SendCode",
+		FullMethod: "/userpb.UserService/SendCode",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UserServiceServer).SendCode(ctx, req.(*RequestPhone))
@@ -112,7 +112,7 @@ func _UserService_RegisterUser_Handler(srv interface{}, ctx context.Context, dec
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/UserService/RegisterUser",
+		FullMethod: "/userpb.UserService/RegisterUser",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UserServiceServer).RegisterUser(ctx, req.(*Code))
@@ -124,7 +124,7 @@ func _UserService_RegisterUser_Handler(srv interface{}, ctx context.Context, dec
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var UserService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "UserService",
+	ServiceName: "userpb.UserService",
 	HandlerType: (*UserServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

@@ -2,8 +2,10 @@ package grpc
 
 import (
 	"context"
+	"fmt"
 	"log"
 
+	"github.com/NeverlandMJ/ToDo/user-service/pkg/entity"
 	"github.com/NeverlandMJ/ToDo/user-service/service"
 	"github.com/NeverlandMJ/ToDo/user-service/v1/userpb"
 )
@@ -23,6 +25,7 @@ func (g *gRPCServer) SendCode(ctx context.Context, req *userpb.RequestPhone) (*u
 	phone := req.GetPhone()
 	_, err := g.svc.Otp.SendOtp(phone)
 	if err != nil {
+		log.Println(err)
 		return nil, err
 	}
 
@@ -31,6 +34,7 @@ func (g *gRPCServer) SendCode(ctx context.Context, req *userpb.RequestPhone) (*u
 }
 
 func (g *gRPCServer) RegisterUser(ctx context.Context, req *userpb.Code) (*userpb.ResponseUser, error) {
+	fmt.Println(req.GetPhone())
 	err := g.svc.Otp.CheckOtp(req.GetPhone(), req.GetCode())
 	if err != nil {
 		log.Println(err)
@@ -38,6 +42,17 @@ func (g *gRPCServer) RegisterUser(ctx context.Context, req *userpb.Code) (*userp
 	}
 
 	resp, err := g.svc.CreateUserNameAndPassword(ctx)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+
+	err = g.svc.CreateUser(ctx, entity.User{
+		Phone: req.Phone,
+		UserName: resp.UserName,
+		Password: resp.Password,
+	})
+
 	if err != nil {
 		log.Println(err)
 		return nil, err
