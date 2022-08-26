@@ -2,11 +2,10 @@ package grpc
 
 import (
 	"context"
-	"fmt"
 	"log"
 
-	customErr "github.com/NeverlandMJ/ToDo/user-service/pkg/error"
 	"github.com/NeverlandMJ/ToDo/user-service/pkg/entity"
+	customErr "github.com/NeverlandMJ/ToDo/user-service/pkg/error"
 	"github.com/NeverlandMJ/ToDo/user-service/service"
 	"github.com/NeverlandMJ/ToDo/user-service/v1/userpb"
 )
@@ -37,7 +36,6 @@ func (g *gRPCServer) SendCode(ctx context.Context, req *userpb.RequestPhone) (*u
 }
 
 func (g *gRPCServer) RegisterUser(ctx context.Context, req *userpb.Code) (*userpb.ResponseUser, error) {
-	fmt.Println(req.GetPhone())
 	err := g.svc.Otp.CheckOtp(req.GetPhone(), req.GetCode())
 	if err != nil {
 		if err == customErr.ERR_INCORRECT_CODE {
@@ -54,13 +52,13 @@ func (g *gRPCServer) RegisterUser(ctx context.Context, req *userpb.Code) (*userp
 	}
 
 	err = g.svc.CreateUser(ctx, entity.User{
-		Phone: req.Phone,
+		Phone:    req.Phone,
 		UserName: resp.UserName,
 		Password: resp.Password,
 	})
 
 	if err != nil {
-		if err == customErr.ERR_USER_EXIST{
+		if err == customErr.ERR_USER_EXIST {
 			return nil, customErr.ERR_USER_EXIST
 		}
 		log.Println(err)
@@ -73,6 +71,22 @@ func (g *gRPCServer) RegisterUser(ctx context.Context, req *userpb.Code) (*userp
 	}, nil
 }
 
+func (g *gRPCServer) SignIn(ctx context.Context, req *userpb.SignInUer) (*userpb.User, error) {
+	un := req.GetUserName()
+	pw := req.GetPassword()
 
+	user, err := g.svc.GetUser(ctx, un, pw)
+	if err != nil {
+		return nil, err
+	}
 
-
+	return &userpb.User{
+		ID:        user.ID,
+		UserName:  user.UserName,
+		Password:  user.Password,
+		Phone:     user.Phone,
+		CreatedAt: user.CreatedAt.String(),
+		UpdatedAt: user.UpdatedAt.String(),
+		IsBlocked: user.IsBlocked,
+	}, nil
+}

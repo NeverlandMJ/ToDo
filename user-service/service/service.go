@@ -42,3 +42,12 @@ func (s Service) CreateUser(ctx context.Context, user entity.User) error {
 	}
 	return nil
 }
+
+func (s Service) GetUser(ctx context.Context, username, password string) (entity.User, error) {
+	user, err := s.Repo.GetUser(ctx, username, password)
+	if err != nil {
+		return entity.User{}, err
+	}
+
+	return user, nil
+}

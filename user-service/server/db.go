@@ -41,3 +41,19 @@ func (s Server) CreateUser(ctx context.Context, user entity.User) error {
 	return nil
 }
 
+func (s Server) GetUser(ctx context.Context, username, password string) (entity.User, error) {
+	var u entity.User
+	err := s.db.QueryRowContext(ctx, `
+		SELECT (id, user_name, password, phone_number, created_at, updated_at, is_blocked)
+		FROM users WHERE user_name=$1 AND password=$2`, username, password).
+	Scan(&u.ID, &u.UserName, &u.Password, &u.Phone, &u.CreatedAt, &u.UpdatedAt, &u.IsBlocked)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return entity.User{}, customErr.ERR_USER_NOT_EXIST
+		}
+		return entity.User{}, err
+	}
+
+	return u, nil
+}	

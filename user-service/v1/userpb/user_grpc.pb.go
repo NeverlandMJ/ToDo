@@ -24,6 +24,7 @@ const _ = grpc.SupportPackageIsVersion7
 type UserServiceClient interface {
 	SendCode(ctx context.Context, in *RequestPhone, opts ...grpc.CallOption) (*RequestPhone, error)
 	RegisterUser(ctx context.Context, in *Code, opts ...grpc.CallOption) (*ResponseUser, error)
+	SignIn(ctx context.Context, in *SignInUer, opts ...grpc.CallOption) (*User, error)
 }
 
 type userServiceClient struct {
@@ -52,12 +53,22 @@ func (c *userServiceClient) RegisterUser(ctx context.Context, in *Code, opts ...
 	return out, nil
 }
 
+func (c *userServiceClient) SignIn(ctx context.Context, in *SignInUer, opts ...grpc.CallOption) (*User, error) {
+	out := new(User)
+	err := c.cc.Invoke(ctx, "/userpb.UserService/SignIn", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserServiceServer is the server API for UserService service.
 // All implementations must embed UnimplementedUserServiceServer
 // for forward compatibility
 type UserServiceServer interface {
 	SendCode(context.Context, *RequestPhone) (*RequestPhone, error)
 	RegisterUser(context.Context, *Code) (*ResponseUser, error)
+	SignIn(context.Context, *SignInUer) (*User, error)
 	mustEmbedUnimplementedUserServiceServer()
 }
 
@@ -70,6 +81,9 @@ func (UnimplementedUserServiceServer) SendCode(context.Context, *RequestPhone) (
 }
 func (UnimplementedUserServiceServer) RegisterUser(context.Context, *Code) (*ResponseUser, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RegisterUser not implemented")
+}
+func (UnimplementedUserServiceServer) SignIn(context.Context, *SignInUer) (*User, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SignIn not implemented")
 }
 func (UnimplementedUserServiceServer) mustEmbedUnimplementedUserServiceServer() {}
 
@@ -120,6 +134,24 @@ func _UserService_RegisterUser_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserService_SignIn_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SignInUer)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).SignIn(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/userpb.UserService/SignIn",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).SignIn(ctx, req.(*SignInUer))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // UserService_ServiceDesc is the grpc.ServiceDesc for UserService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -134,6 +166,10 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "RegisterUser",
 			Handler:    _UserService_RegisterUser_Handler,
+		},
+		{
+			MethodName: "SignIn",
+			Handler:    _UserService_SignIn_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
