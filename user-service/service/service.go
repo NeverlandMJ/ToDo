@@ -13,7 +13,7 @@ type Service struct {
 	Otp validate.Otp
 }
 
-func NewService(repo server.Repository) *Service {
+func NewService(repo server.Repository) (*Service) {
 	return &Service{
 		Repo: repo,
 		Otp: validate.NewOtp(),

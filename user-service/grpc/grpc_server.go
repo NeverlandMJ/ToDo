@@ -29,7 +29,9 @@ func (g *gRPCServer) SendCode(ctx context.Context, req *userpb.RequestPhone) (*u
 		return nil, err
 	}
 
-	return &userpb.RequestPhone{Phone: phone}, nil
+	return &userpb.RequestPhone{
+		Phone: phone,
+	}, nil
 
 }
 

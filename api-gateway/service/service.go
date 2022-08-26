@@ -3,7 +3,7 @@ package service
 import (
 	"context"
 
-	"github.com/NeverlandMJ/ToDo/api-gateway/entity"
+	"github.com/NeverlandMJ/ToDo/api-gateway/pkg/entity"
 )
 
 type Provider struct {

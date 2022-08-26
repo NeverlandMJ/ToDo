@@ -23,7 +23,7 @@ func main() {
 	}
 
 	service := service.NewService(server)
-
+	
 	RunGRPCServer(*service)
 
 }

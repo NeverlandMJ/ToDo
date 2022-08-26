@@ -31,7 +31,9 @@ func NewOtp() Otp {
 }
 
 func (o *Otp) SendOtp(to string) (string, error) {
+	// code := GenerateCode(6)
 	params := &openapi.CreateVerificationParams{}
+	// params.SetCustomCode(code)
 	params.SetTo(to)
 	params.SetChannel("sms")
 
@@ -39,25 +41,23 @@ func (o *Otp) SendOtp(to string) (string, error) {
 
 	if err != nil {
 		return "", err
-	} 
+	}
 
 	return *resp.Sid, nil
 }
 
 func (o *Otp) CheckOtp(to, code string) error {
-   params := &openapi.CreateVerificationCheckParams{}
-   params.SetTo(to)
-   params.SetCode(code)
+	params := &openapi.CreateVerificationCheckParams{}
+	params.SetTo(to)
+	params.SetCode(code)
 
-   resp, err := o.client.VerifyV2.CreateVerificationCheck(o.VERIFY_SERVICE_SID, params)
+	resp, err := o.client.VerifyV2.CreateVerificationCheck(o.VERIFY_SERVICE_SID, params)
 
-   if err != nil {
-       fmt.Println(err.Error())
-   } else if *resp.Status == "approved" {
-       return nil
-   } 
-   
-   return ERR_CODE_INCORRECT
+	if err != nil {
+		fmt.Println(err.Error())
+	} else if *resp.Status == "approved" {
+		return nil
+	}
+
+	return ERR_CODE_INCORRECT
 }
-
-
