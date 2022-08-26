@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 
+	customErr "github.com/NeverlandMJ/ToDo/user-service/pkg/error"
 	"github.com/NeverlandMJ/ToDo/user-service/pkg/entity"
 	"github.com/NeverlandMJ/ToDo/user-service/service"
 	"github.com/NeverlandMJ/ToDo/user-service/v1/userpb"
@@ -39,6 +40,9 @@ func (g *gRPCServer) RegisterUser(ctx context.Context, req *userpb.Code) (*userp
 	fmt.Println(req.GetPhone())
 	err := g.svc.Otp.CheckOtp(req.GetPhone(), req.GetCode())
 	if err != nil {
+		if err == customErr.ERR_INCORRECT_CODE {
+			return nil, customErr.ERR_INCORRECT_CODE
+		}
 		log.Println(err)
 		return nil, err
 	}
@@ -56,6 +60,9 @@ func (g *gRPCServer) RegisterUser(ctx context.Context, req *userpb.Code) (*userp
 	})
 
 	if err != nil {
+		if err == customErr.ERR_USER_EXIST{
+			return nil, customErr.ERR_USER_EXIST
+		}
 		log.Println(err)
 		return nil, err
 	}

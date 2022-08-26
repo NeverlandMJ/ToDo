@@ -3,13 +3,13 @@ package validate
 import (
 	"fmt"
 	"os"
-
+	
+	customErr "github.com/NeverlandMJ/ToDo/user-service/pkg/error"
 	_ "github.com/joho/godotenv/autoload"
 	"github.com/twilio/twilio-go"
 	openapi "github.com/twilio/twilio-go/rest/verify/v2"
 )
 
-var ERR_CODE_INCORRECT = fmt.Errorf("entered code is incorrect")
 
 type Otp struct {
 	TWILIO_ACCOUNT_SID string
@@ -59,5 +59,5 @@ func (o *Otp) CheckOtp(to, code string) error {
 		return nil
 	}
 
-	return ERR_CODE_INCORRECT
+	return customErr.ERR_INCORRECT_CODE
 }

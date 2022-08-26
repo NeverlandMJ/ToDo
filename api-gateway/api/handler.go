@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/NeverlandMJ/ToDo/api-gateway/pkg/entity"
+	customErr "github.com/NeverlandMJ/ToDo/api-gateway/pkg/error"
 	"github.com/NeverlandMJ/ToDo/api-gateway/service"
 	"github.com/gin-gonic/gin"
 )
@@ -70,7 +71,16 @@ func (h Handler) SignUp(c *gin.Context) {
 
 	resp, err := h.provider.UserServiceProvider.RegisterUser(c.Request.Context(), cd)
 	if err != nil {
-		if err == service.ERR_CODE_HAS_EXPIRED {
+		if err == customErr.ERR_INCORRECT_CODE {
+			r := message{
+				Message: "code doesn't match",
+				Success: false,
+			}
+			c.JSON(http.StatusBadRequest, r)
+			fmt.Println(err)
+			return
+		}
+		if err == customErr.ERR_CODE_HAS_EXPIRED {
 			r := message{
 				Message: "code has expired",
 				Success: false,
@@ -78,8 +88,17 @@ func (h Handler) SignUp(c *gin.Context) {
 			c.JSON(http.StatusBadRequest, r)
 			return
 		}
+		if err == customErr.ERR_USER_EXIST {
+			r := message{
+				Message: err.Error(),
+				Success: false,
+			}
+			c.JSON(http.StatusSeeOther, r)
+			fmt.Println(err)
+			return
+		}
 		r := message{
-			Message: "code doesn't match",
+			Message: "unexpected server error",
 			Success: false,
 		}
 		c.JSON(http.StatusInternalServerError, r)

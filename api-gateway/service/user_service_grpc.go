@@ -2,18 +2,16 @@ package service
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/NeverlandMJ/ToDo/api-gateway/pkg/entity"
+	customErr "github.com/NeverlandMJ/ToDo/api-gateway/pkg/error"
 	"github.com/NeverlandMJ/ToDo/api-gateway/pkg/utilities"
 	"github.com/NeverlandMJ/ToDo/api-gateway/v1/userpb"
 	"github.com/go-redis/redis"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
-
-var ERR_CODE_HAS_EXPIRED = fmt.Errorf("code has been expired")
 
 type userServiceGRPCClient struct {
 	client     userpb.UserServiceClient
@@ -42,7 +40,7 @@ func NewGRPCClientUser(url string) userServiceGRPCClient {
 	}
 
 	return userServiceGRPCClient{
-		client: client,
+		client:     client,
 		inMemoryDB: db,
 	}
 }
@@ -66,9 +64,9 @@ func (c userServiceGRPCClient) SendCode(ctx context.Context, ph entity.ReqPhone)
 func (c userServiceGRPCClient) RegisterUser(ctx context.Context, code entity.ReqCode) (entity.RespUser, error) {
 	phone, err := c.inMemoryDB.Get(code.Phone).Result()
 	if err != nil && phone == "" {
-		return entity.RespUser{}, ERR_CODE_HAS_EXPIRED
+		return entity.RespUser{}, customErr.ERR_CODE_HAS_EXPIRED
 	}
-	
+
 	code.Phone = phone
 	resp, err := c.client.RegisterUser(ctx, &userpb.Code{
 		Phone: code.Phone,
