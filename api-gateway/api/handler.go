@@ -25,6 +25,7 @@ type message struct {
 	Success bool   `json:"success,omitempty"`
 }
 
+// sending code to the user
 func (h Handler) SendCode(c *gin.Context)  {
 	var ph entity.ReqPhone
 	if err := c.BindJSON(&ph); err != nil {
