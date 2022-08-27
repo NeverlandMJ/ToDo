@@ -14,8 +14,8 @@ type Server struct {
 	db *sql.DB
 }
 
-func NewServer(cnfg config.Config) (*Server, error) {
-	conn, err := database.Connect(cnfg)
+func NewServer(cnfg config.Config, path string) (*Server, error) {
+	conn, err := database.Connect(cnfg, path)
 	if err != nil {
 		return nil, err
 	}
@@ -24,10 +24,22 @@ func NewServer(cnfg config.Config) (*Server, error) {
 	}, nil
 }
 
-func (s Server) CreateUser(ctx context.Context, user entity.User) error {
-	_, err := s.db.QueryContext(ctx, `SELECT * FROM users WHERE phone_number=$1 `, user.Phone)
+func (s Server) deleteUsers() error {
+	if _, err := s.db.Exec(`DELETE FROM users`); err != nil {
+		return err
+	}
 
-	if err != nil {
+	return nil
+}
+
+func (s Server) CreateUser(ctx context.Context, user entity.User) error {
+	var tempU entity.User
+	err := s.db.QueryRowContext(ctx, `SELECT 
+	 id, user_name, password, phone_number, created_at, updated_at, is_blocked
+	FROM users WHERE phone_number=$1 `, user.Phone).
+	Scan(&tempU.ID, &tempU.UserName, &tempU.Password, &tempU.Phone, &tempU.CreatedAt, &tempU.UpdatedAt, &tempU.IsBlocked)
+
+	if err != sql.ErrNoRows{
 		return customErr.ERR_USER_EXIST
 	}
 
@@ -44,7 +56,7 @@ func (s Server) CreateUser(ctx context.Context, user entity.User) error {
 func (s Server) GetUser(ctx context.Context, username, password string) (entity.User, error) {
 	var u entity.User
 	err := s.db.QueryRowContext(ctx, `
-		SELECT (id, user_name, password, phone_number, created_at, updated_at, is_blocked)
+		SELECT id, user_name, password, phone_number, created_at, updated_at, is_blocked
 		FROM users WHERE user_name=$1 AND password=$2`, username, password).
 	Scan(&u.ID, &u.UserName, &u.Password, &u.Phone, &u.CreatedAt, &u.UpdatedAt, &u.IsBlocked)
 

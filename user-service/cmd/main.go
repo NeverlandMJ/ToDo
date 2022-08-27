@@ -17,7 +17,7 @@ func main() {
 		panic(err)
 	}
 
-	server, err := server.NewServer(cfg)
+	server, err := server.NewServer(cfg, "file://migrations")
 	if err != nil {
 		panic(err)
 	}

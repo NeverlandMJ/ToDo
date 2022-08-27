@@ -10,28 +10,27 @@ import (
 
 type Service struct {
 	Repo server.Repository
-	Otp validate.Otp
+	Otp  validate.Otp
 }
 
-func NewService(repo server.Repository) (*Service) {
+func NewService(repo server.Repository) *Service {
 	return &Service{
 		Repo: repo,
-		Otp: validate.NewOtp(),
+		Otp:  validate.NewOtp(),
 	}
 }
 
-
-func (s Service) CreateUserNameAndPassword(ctx context.Context) (entity.ResponseUser, error)  {
+func (s Service) CreateUsernameAndPassword(ctx context.Context) (entity.ResponseUser, error) {
 	pw, err := validate.GeneratePassword()
 	if err != nil {
 		return entity.ResponseUser{}, err
 	}
-	un := validate.	GenerateUserName()
+	un := validate.GenerateUserName()
 
 	return entity.ResponseUser{
 		UserName: un,
 		Password: pw,
-	}, nil	
+	}, nil
 }
 
 func (s Service) CreateUser(ctx context.Context, user entity.User) error {

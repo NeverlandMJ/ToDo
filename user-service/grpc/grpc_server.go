@@ -45,7 +45,7 @@ func (g *gRPCServer) RegisterUser(ctx context.Context, req *userpb.Code) (*userp
 		return nil, err
 	}
 
-	resp, err := g.svc.CreateUserNameAndPassword(ctx)
+	resp, err := g.svc.CreateUsernameAndPassword(ctx)
 	if err != nil {
 		log.Println(err)
 		return nil, err

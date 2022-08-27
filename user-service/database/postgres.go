@@ -14,7 +14,8 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
 
-func Connect(cfg config.Config) (*sql.DB, error) {
+// ""file://./../migrations""
+func Connect(cfg config.Config, path string) (*sql.DB, error) {
 	//protocol: //login:password@host:port/yourDatabase'sName
 	// dbURL := "postgres://sunbula:2307@localhost:5432/test"
 
@@ -38,7 +39,7 @@ func Connect(cfg config.Config) (*sql.DB, error) {
 		return nil, fmt.Errorf("failed to migrate1: %v", err)
 	}
 	m, err := migrate.NewWithDatabaseInstance(
-		"file://migrations",
+		path,
 		"postgres",
 		driver,
 	)
