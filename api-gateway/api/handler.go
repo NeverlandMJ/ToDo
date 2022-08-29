@@ -1,6 +1,8 @@
 package api
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -71,40 +73,104 @@ func (h Handler) SignUp(c *gin.Context) {
 
 	resp, err := h.provider.UserServiceProvider.RegisterUser(c.Request.Context(), cd)
 	if err != nil {
-		if err == customErr.ERR_INCORRECT_CODE {
+		fmt.Println(err)
+		if errors.Is(err, customErr.ERR_INCORRECT_CODE) {
 			r := message{
 				Message: "code doesn't match",
 				Success: false,
 			}
 			c.JSON(http.StatusBadRequest, r)
-			fmt.Println(err)
 			return
-		}
-		if err == customErr.ERR_CODE_HAS_EXPIRED {
+		} else if errors.Is(err, customErr.ERR_CODE_HAS_EXPIRED) {
 			r := message{
 				Message: "code has expired",
 				Success: false,
 			}
 			c.JSON(http.StatusBadRequest, r)
 			return
-		}
-		if err == customErr.ERR_USER_EXIST {
+		} else if errors.Is(err, customErr.ERR_USER_EXIST) {
+			r := message{
+				Message: "user already exists",
+				Success: false,
+			}
+			c.JSON(http.StatusBadRequest, r)
+			return
+		} else {
 			r := message{
 				Message: err.Error(),
 				Success: false,
 			}
-			c.JSON(http.StatusSeeOther, r)
-			fmt.Println(err)
+			c.JSON(http.StatusInternalServerError, r)
 			return
-		}
+		}		
+
+	}
+
+	c.JSON(http.StatusOK, resp)
+}
+
+func (h Handler) SignIn(c *gin.Context) {
+	var data entity.ReqSignIn
+
+	if err := c.BindJSON(&data); err != nil {
 		r := message{
-			Message: "unexpected server error",
+			Message: "invalid json",
 			Success: false,
 		}
-		c.JSON(http.StatusInternalServerError, r)
+		c.JSON(http.StatusBadRequest, r)
 		fmt.Println(err)
 		return
 	}
 
-	c.JSON(http.StatusOK, resp)
+	token, err := h.provider.UserServiceProvider.SignIn(context.Background(), data)
+	fmt.Println(token)
+
+	if err != nil {
+		log.Println(err)
+		if errors.Is(err, customErr.ERR_USER_NOT_EXIST) {
+			r := message{
+				Message: err.Error(),
+				Success: false,
+			}
+			c.JSON(http.StatusNotFound, r)
+			return
+		} else if errors.Is(err, customErr.ERR_INTERNAL) {
+			r := message{
+				Message: err.Error(),
+				Success: false,
+			}
+			c.JSON(http.StatusInternalServerError, r)
+			return
+		} else if errors.Is(err, customErr.ERR_INCORRECT_PASSWORD) {
+			r := message{
+				Message: err.Error(),
+				Success: false,
+			}
+			c.JSON(http.StatusNotAcceptable, r)
+			return
+		} else {
+			r := message{
+				Message: err.Error(),
+				Success: false,
+			}
+			c.JSON(http.StatusInternalServerError, r)
+			return
+		}
+	}
+
+	c.SetCookie(
+		"token",
+		token,
+		3600,
+		"/",
+		"localhost",
+		false,
+		true,
+	)
+
+	r := message{
+		Message: "succesfully loged in",
+		Success: true,
+	}
+	c.JSON(http.StatusOK, r)
 }

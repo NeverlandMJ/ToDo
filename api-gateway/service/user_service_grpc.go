@@ -4,10 +4,12 @@ import (
 	"context"
 	"time"
 
+	"github.com/NeverlandMJ/ToDo/api-gateway/pkg/auth"
 	"github.com/NeverlandMJ/ToDo/api-gateway/pkg/entity"
 	customErr "github.com/NeverlandMJ/ToDo/api-gateway/pkg/error"
 	"github.com/NeverlandMJ/ToDo/api-gateway/pkg/utilities"
 	"github.com/NeverlandMJ/ToDo/api-gateway/v1/userpb"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/go-redis/redis"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -80,4 +82,42 @@ func (c userServiceGRPCClient) RegisterUser(ctx context.Context, code entity.Req
 		UserName: resp.GetUserName(),
 		Password: resp.GetPassword(),
 	}, nil
+}
+
+func (c userServiceGRPCClient) SignIn(ctx context.Context, data entity.ReqSignIn) (string, error) {
+	resp, err := c.client.SignIn(ctx, &userpb.SignInUer{
+		UserName: data.UserName,
+		Password: data.Password,
+	})
+	if err != nil {
+		return "", err
+	}
+
+	if !resp.IsBlocked {
+		return "", customErr.ERR_USER_BLOCKED
+	}
+
+	expirationTime := time.Now().Add(1 * time.Hour)
+	// Create the JWT claims, which includes the username and expiry time
+	claims := &auth.Claims{
+		ID:          resp.GetID(),
+		PhoneNumber: resp.GetPhone(),
+		IsBlocked:   resp.GetIsBlocked(),
+		UserName:    resp.GetUserName(),
+		StandardClaims: jwt.StandardClaims{
+			// In JWT, the expiry time is expressed as unix milliseconds
+			ExpiresAt: expirationTime.Unix(),
+		},
+	}
+
+	// Declare the token with the algorithm used for signing, and the claims
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	// Create the JWT string
+	tokenString, err := token.SignedString(auth.JwtKey)
+	if err != nil {
+		// If there is an error in creating the JWT return an internal server error
+		return "", customErr.ERR_INTERNAL
+	}
+
+	return tokenString, nil
 }

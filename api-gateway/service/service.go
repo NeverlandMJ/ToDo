@@ -14,6 +14,7 @@ type Provider struct {
 type UserServiceProvider interface {
 	SendCode(ctx context.Context, ph entity.ReqPhone) (entity.ReqPhone, error)
 	RegisterUser(ctx context.Context, code entity.ReqCode) (entity.RespUser, error)
+	SignIn(ctx context.Context, data entity.ReqSignIn) (string, error)
 }
 
 type TodoServiceProvider interface {

@@ -14,6 +14,7 @@ func NewRouter(h Handler) *gin.Engine{
 
 	router.POST("/v1/userpb/send-code", h.SendCode)
 	router.POST("/v1/userpb/register", h.SignUp)
+	router.POST("/v1/userpb/sign-in", h.SignIn)
 
 	return router
 }
