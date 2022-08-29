@@ -2,6 +2,7 @@ package grpc
 
 import (
 	"context"
+	"errors"
 	"log"
 
 	"github.com/NeverlandMJ/ToDo/user-service/pkg/entity"
@@ -40,9 +41,10 @@ func (g *gRPCServer) RegisterUser(ctx context.Context, req *userpb.Code) (*userp
 	if err != nil {
 		if err == customErr.ERR_INCORRECT_CODE {
 			return nil, customErr.ERR_INCORRECT_CODE
+		} else {
+			log.Println(err)
+			return nil, err
 		}
-		log.Println(err)
-		return nil, err
 	}
 
 	resp, err := g.svc.CreateUsernameAndPassword(ctx)
@@ -58,11 +60,13 @@ func (g *gRPCServer) RegisterUser(ctx context.Context, req *userpb.Code) (*userp
 	})
 
 	if err != nil {
-		if err == customErr.ERR_USER_EXIST {
+		if errors.Is(err, customErr.ERR_USER_EXIST) {
+			log.Printf("user exist %v\n", err)
 			return nil, customErr.ERR_USER_EXIST
+		} else {
+			log.Printf("other error %v\n", err)
+			return nil, err
 		}
-		log.Println(err)
-		return nil, err
 	}
 
 	return &userpb.ResponseUser{
@@ -77,6 +81,7 @@ func (g *gRPCServer) SignIn(ctx context.Context, req *userpb.SignInUer) (*userpb
 
 	user, err := g.svc.GetUser(ctx, un, pw)
 	if err != nil {
+		log.Println(err)
 		return nil, err
 	}
 

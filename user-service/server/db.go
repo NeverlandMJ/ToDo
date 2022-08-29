@@ -6,8 +6,9 @@ import (
 
 	"github.com/NeverlandMJ/ToDo/user-service/config"
 	"github.com/NeverlandMJ/ToDo/user-service/database"
-	customErr "github.com/NeverlandMJ/ToDo/user-service/pkg/error"
 	"github.com/NeverlandMJ/ToDo/user-service/pkg/entity"
+	customErr "github.com/NeverlandMJ/ToDo/user-service/pkg/error"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type Server struct {
@@ -33,22 +34,16 @@ func (s Server) deleteUsers() error {
 }
 
 func (s Server) CreateUser(ctx context.Context, user entity.User) error {
-	var tempU entity.User
-	err := s.db.QueryRowContext(ctx, `SELECT 
-	 id, user_name, password, phone_number, created_at, updated_at, is_blocked
-	FROM users WHERE phone_number=$1 `, user.Phone).
-	Scan(&tempU.ID, &tempU.UserName, &tempU.Password, &tempU.Phone, &tempU.CreatedAt, &tempU.UpdatedAt, &tempU.IsBlocked)
-
-	if err != sql.ErrNoRows{
-		return customErr.ERR_USER_EXIST
+	bp, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.MinCost)
+	if err != nil {
+		return err
 	}
-
 	_, err = s.db.ExecContext(ctx, `INSERT INTO users
 		(id, user_name, password, phone_number, created_at, updated_at, is_blocked)
 		VALUES ($1, $2, $3, $4, $5, $6, $7)
-	`, user.ID, user.UserName, user.Password, user.Phone, user.CreatedAt, user.UpdatedAt, user.IsBlocked)
+	`, user.ID, user.UserName, string(bp), user.Phone, user.CreatedAt, user.UpdatedAt, user.IsBlocked)
 	if err != nil {
-		return  err
+		return customErr.ERR_USER_EXIST
 	}
 	return nil
 }
@@ -57,7 +52,7 @@ func (s Server) GetUser(ctx context.Context, username, password string) (entity.
 	var u entity.User
 	err := s.db.QueryRowContext(ctx, `
 		SELECT id, user_name, password, phone_number, created_at, updated_at, is_blocked
-		FROM users WHERE user_name=$1 AND password=$2`, username, password).
+		FROM users WHERE user_name=$1`, username).
 	Scan(&u.ID, &u.UserName, &u.Password, &u.Phone, &u.CreatedAt, &u.UpdatedAt, &u.IsBlocked)
 
 	if err != nil {
@@ -65,6 +60,11 @@ func (s Server) GetUser(ctx context.Context, username, password string) (entity.
 			return entity.User{}, customErr.ERR_USER_NOT_EXIST
 		}
 		return entity.User{}, err
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(password))
+	if err != nil {
+		return entity.User{}, customErr.ERR_INCORRECT_PASSWORD
 	}
 
 	return u, nil
