@@ -42,6 +42,11 @@ func (h Handler) SendCode(c *gin.Context) {
 		fmt.Println(err)
 		return
 	}
+	
+	if err := ph.CheckReqPhone(); err != nil {
+		h.HandleErr(err, c)
+		return
+	}
 
 	resp, err := h.provider.UserServiceProvider.SendCode(c.Request.Context(), ph)
 	if err != nil {
@@ -67,6 +72,11 @@ func (h Handler) SignUp(c *gin.Context) {
 		return
 	}
 
+	if err := cd.CheckReqCode(); err != nil {
+		h.HandleErr(err, c)
+		return
+	}
+
 	resp, err := h.provider.UserServiceProvider.RegisterUser(c.Request.Context(), cd)
 	if err != nil {
 		h.HandleErr(err, c)
@@ -86,6 +96,11 @@ func (h Handler) SignIn(c *gin.Context) {
 		}
 		c.JSON(http.StatusBadRequest, r)
 		fmt.Println(err)
+		return
+	}
+
+	if err := data.CheckReqSignIn(); err != nil {
+		h.HandleErr(err, c)
 		return
 	}
 
@@ -115,7 +130,6 @@ func (h Handler) SignIn(c *gin.Context) {
 }
 
 func (h Handler) HandleErr(err error, c *gin.Context) {
-
 	log.Println(err)
 	if sts, ok := status.FromError(err); ok {
 		switch sts.Code() {
@@ -162,6 +176,12 @@ func (h Handler) HandleErr(err error, c *gin.Context) {
 			Success: false,
 		}
 		c.JSON(http.StatusForbidden, r)
+	}else if errors.Is(err, customErr.ERR_INVALID_INPUT){
+		r := message{
+			Message: err.Error(),
+			Success: false,
+		}
+		c.JSON(http.StatusBadRequest, r)
 	} else {
 		r := message{
 			Message: "unexpected server error",
