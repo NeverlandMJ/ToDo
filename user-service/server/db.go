@@ -58,8 +58,9 @@ func (s Server) GetUser(ctx context.Context, username, password string) (entity.
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return entity.User{}, customErr.ERR_USER_NOT_EXIST
+		}else {
+			return entity.User{}, err
 		}
-		return entity.User{}, err
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(password))

@@ -9,6 +9,8 @@ import (
 	customErr "github.com/NeverlandMJ/ToDo/user-service/pkg/error"
 	"github.com/NeverlandMJ/ToDo/user-service/service"
 	"github.com/NeverlandMJ/ToDo/user-service/v1/userpb"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type gRPCServer struct {
@@ -27,7 +29,7 @@ func (g *gRPCServer) SendCode(ctx context.Context, req *userpb.RequestPhone) (*u
 	_, err := g.svc.Otp.SendOtp(phone)
 	if err != nil {
 		log.Println(err)
-		return nil, err
+		return nil, status.Error(codes.Internal, "error occured while sending TOTP")
 	}
 
 	return &userpb.RequestPhone{
@@ -39,18 +41,18 @@ func (g *gRPCServer) SendCode(ctx context.Context, req *userpb.RequestPhone) (*u
 func (g *gRPCServer) RegisterUser(ctx context.Context, req *userpb.Code) (*userpb.ResponseUser, error) {
 	err := g.svc.Otp.CheckOtp(req.GetPhone(), req.GetCode())
 	if err != nil {
-		if err == customErr.ERR_INCORRECT_CODE {
-			return nil, customErr.ERR_INCORRECT_CODE
+		if errors.Is(err, customErr.ERR_INCORRECT_CODE) {
+			return nil, status.Error(codes.Unauthenticated, customErr.ERR_INCORRECT_CODE.Error())
 		} else {
 			log.Println(err)
-			return nil, err
+			return nil, status.Error(codes.Internal, "error occured while checking TOTP")
 		}
 	}
 
 	resp, err := g.svc.CreateUsernameAndPassword(ctx)
 	if err != nil {
 		log.Println(err)
-		return nil, err
+		return nil, status.Error(codes.Internal, "error occured while creating username and password")
 	}
 
 	err = g.svc.CreateUser(ctx, entity.User{
@@ -62,10 +64,10 @@ func (g *gRPCServer) RegisterUser(ctx context.Context, req *userpb.Code) (*userp
 	if err != nil {
 		if errors.Is(err, customErr.ERR_USER_EXIST) {
 			log.Printf("user exist %v\n", err)
-			return nil, customErr.ERR_USER_EXIST
+			return nil, status.Error(codes.AlreadyExists, customErr.ERR_USER_EXIST.Error())
 		} else {
 			log.Printf("other error %v\n", err)
-			return nil, err
+			return nil, status.Error(codes.Internal, "error occured while creating user")
 		}
 	}
 
@@ -82,7 +84,13 @@ func (g *gRPCServer) SignIn(ctx context.Context, req *userpb.SignInUer) (*userpb
 	user, err := g.svc.GetUser(ctx, un, pw)
 	if err != nil {
 		log.Println(err)
-		return nil, err
+		if errors.Is(err, customErr.ERR_USER_NOT_EXIST) {
+			return nil, status.Error(codes.NotFound, customErr.ERR_USER_NOT_EXIST.Error())
+		}else if errors.Is(err, customErr.ERR_INCORRECT_PASSWORD){
+			return nil, status.Error(codes.Unauthenticated, customErr.ERR_INCORRECT_PASSWORD.Error())
+		}else {
+			return nil, status.Error(codes.Internal, "unexpected error")
+		}
 	}
 
 	return &userpb.User{

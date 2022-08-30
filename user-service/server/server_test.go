@@ -60,6 +60,7 @@ func TestServer_GetUser(t *testing.T) {
 		require.NoError(t, err)
 
 		u, err := s.GetUser(context.Background(), user.UserName, user.Password)
+		user.Password = u.Password
 		require.NoError(t, err)
 		assert.Equal(t, user, u)
 	})

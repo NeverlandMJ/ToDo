@@ -11,6 +11,8 @@ import (
 	customErr "github.com/NeverlandMJ/ToDo/api-gateway/pkg/error"
 	"github.com/NeverlandMJ/ToDo/api-gateway/service"
 	"github.com/gin-gonic/gin"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type Handler struct {
@@ -43,13 +45,7 @@ func (h Handler) SendCode(c *gin.Context) {
 
 	resp, err := h.provider.UserServiceProvider.SendCode(c.Request.Context(), ph)
 	if err != nil {
-		log.Println(err)
-		r := message{
-			Message: "error in sending code",
-			Success: false,
-		}
-		c.JSON(http.StatusInternalServerError, r)
-		fmt.Println(err)
+		h.HandleErr(err, c)
 		return
 	}
 	r := message{
@@ -73,40 +69,11 @@ func (h Handler) SignUp(c *gin.Context) {
 
 	resp, err := h.provider.UserServiceProvider.RegisterUser(c.Request.Context(), cd)
 	if err != nil {
-		fmt.Println(err)
-		if errors.Is(err, customErr.ERR_INCORRECT_CODE) {
-			r := message{
-				Message: "code doesn't match",
-				Success: false,
-			}
-			c.JSON(http.StatusBadRequest, r)
-			return
-		} else if errors.Is(err, customErr.ERR_CODE_HAS_EXPIRED) {
-			r := message{
-				Message: "code has expired",
-				Success: false,
-			}
-			c.JSON(http.StatusBadRequest, r)
-			return
-		} else if errors.Is(err, customErr.ERR_USER_EXIST) {
-			r := message{
-				Message: "user already exists",
-				Success: false,
-			}
-			c.JSON(http.StatusBadRequest, r)
-			return
-		} else {
-			r := message{
-				Message: err.Error(),
-				Success: false,
-			}
-			c.JSON(http.StatusInternalServerError, r)
-			return
-		}		
-
+		h.HandleErr(err, c)
+		return
 	}
 
-	c.JSON(http.StatusOK, resp)
+	c.JSON(http.StatusCreated, resp)
 }
 
 func (h Handler) SignIn(c *gin.Context) {
@@ -126,36 +93,8 @@ func (h Handler) SignIn(c *gin.Context) {
 	fmt.Println(token)
 
 	if err != nil {
-		log.Println(err)
-		if errors.Is(err, customErr.ERR_USER_NOT_EXIST) {
-			r := message{
-				Message: err.Error(),
-				Success: false,
-			}
-			c.JSON(http.StatusNotFound, r)
-			return
-		} else if errors.Is(err, customErr.ERR_INTERNAL) {
-			r := message{
-				Message: err.Error(),
-				Success: false,
-			}
-			c.JSON(http.StatusInternalServerError, r)
-			return
-		} else if errors.Is(err, customErr.ERR_INCORRECT_PASSWORD) {
-			r := message{
-				Message: err.Error(),
-				Success: false,
-			}
-			c.JSON(http.StatusNotAcceptable, r)
-			return
-		} else {
-			r := message{
-				Message: err.Error(),
-				Success: false,
-			}
-			c.JSON(http.StatusInternalServerError, r)
-			return
-		}
+		h.HandleErr(err, c)
+		return
 	}
 
 	c.SetCookie(
@@ -173,4 +112,62 @@ func (h Handler) SignIn(c *gin.Context) {
 		Success: true,
 	}
 	c.JSON(http.StatusOK, r)
+}
+
+func (h Handler) HandleErr(err error, c *gin.Context) {
+
+	log.Println(err)
+	if sts, ok := status.FromError(err); ok {
+		switch sts.Code() {
+		case codes.Internal:
+			r := message{
+				Message: "internal server error occured",
+				Success: false,
+			}
+			c.JSON(http.StatusInternalServerError, r)
+		case codes.AlreadyExists:
+			r := message{
+				Message: "this user is already exist",
+				Success: false,
+			}
+			c.JSON(http.StatusConflict, r)
+		case codes.NotFound:
+			r := message{
+				Message: sts.Message(),
+				Success: false,
+			}
+			c.JSON(http.StatusNotFound, r)
+		case codes.Unauthenticated:
+			r := message{
+				Message: sts.Message(),
+				Success: false,
+			}
+			c.JSON(http.StatusUnauthorized, r)
+		default:
+			r := message{
+				Message: sts.Message(),
+				Success: false,
+			}
+			c.JSON(http.StatusInternalServerError, r)
+		}
+	} else if errors.Is(err, customErr.ERR_CODE_HAS_EXPIRED) {
+		r := message{
+			Message: "code has expired",
+			Success: false,
+		}
+		c.JSON(http.StatusRequestTimeout, r)
+	} else if errors.Is(err, customErr.ERR_USER_BLOCKED) {
+		r := message{
+			Message: "current user is blocked",
+			Success: false,
+		}
+		c.JSON(http.StatusForbidden, r)
+	} else {
+		r := message{
+			Message: "unexpected server error",
+			Success: false,
+		}
+		c.JSON(http.StatusInternalServerError, r)
+	}
+
 }
