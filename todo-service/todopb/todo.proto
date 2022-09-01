@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+option go_package = "github.com/NeverlandMJ/ToDo/todo-service/todopb";
+
+package todopb;
+
+service TodoService {
+    rpc CreateTodo(RequestTodo) returns (ResponseTodo);
+    rpc GetTodoByID(RequestTodoID) returns (ResponseTodo);
+    rpc MarkAsDone(RequestTodoID) returns (Empty);
+}
+
+message Empty {}
+
+message RequestTodo {
+    string user_id = 1;
+    string body = 2;
+    string deadline = 3;
+}
+
+message ResponseTodo {
+    string id = 1;
+    string body = 2;
+    string created_at = 3;
+    string deadline = 4;
+    bool is_done = 5;
+}
+
+message RequestTodoID {
+    string id = 1;
+}
+
