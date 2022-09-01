@@ -20,10 +20,11 @@ message RequestTodo {
 
 message ResponseTodo {
     string id = 1;
-    string body = 2;
-    string created_at = 3;
-    string deadline = 4;
-    bool is_done = 5;
+    string userID = 2;
+    string body = 3;
+    string created_at = 4;
+    string deadline = 5;
+    bool is_done = 6;
 }
 
 message RequestTodoID {

@@ -50,7 +50,7 @@ func TestServer_GetTodo(t *testing.T) {
 		require.NoError(t, err)
 
 		td, err := s.GetTodo(context.Background(), todo.ID)
-		
+		td.CreatedAt = todo.CreatedAt
 
 		require.NoError(t, err)
 		require.Equal(t, todo, td)

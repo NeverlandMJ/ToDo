@@ -15,17 +15,17 @@ type Todo struct {
 }
 
 func NewTodo(deadline time.Time, body string, userID uuid.UUID) (Todo, error) {
-	tm := time.Now().Format("UnixDate")
-	created, err := time.Parse("UnixDate", tm)
-	if err != nil {
-		return Todo{}, err
-	}
+	// tm := time.Now().Format("UnixDate")
+	// created, err := time.Parse("UnixDate", tm)
+	// if err != nil {
+	// 	return Todo{}, err
+	// }
 
 	return Todo{
 		ID:        uuid.New(),
 		UserID:    userID,
 		Body:      body,
-		CreatedAt: created,
+		CreatedAt: time.Now().UTC(),
 		Deadline:  deadline,
 		IsDone:    false,
 	}, nil
