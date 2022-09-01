@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/NeverlandMJ/ToDo/api-gateway/pkg/entity"
 	customErr "github.com/NeverlandMJ/ToDo/api-gateway/pkg/error"
@@ -42,7 +43,7 @@ func (h Handler) SendCode(c *gin.Context) {
 		fmt.Println(err)
 		return
 	}
-	
+
 	if err := ph.CheckReqPhone(); err != nil {
 		h.HandleErr(err, c)
 		return
@@ -105,8 +106,6 @@ func (h Handler) SignIn(c *gin.Context) {
 	}
 
 	token, err := h.provider.UserServiceProvider.SignIn(context.Background(), data)
-	fmt.Println(token)
-
 	if err != nil {
 		h.HandleErr(err, c)
 		return
@@ -127,6 +126,64 @@ func (h Handler) SignIn(c *gin.Context) {
 		Success: true,
 	}
 	c.JSON(http.StatusOK, r)
+}
+
+func (h Handler) LogOut(c *gin.Context) {
+	cook, err := c.Request.Cookie("userID")
+	if err != nil {
+		r := message{
+			Message: "cookie is not set",
+			Success: false,
+		}
+		c.JSON(http.StatusUnauthorized, r)
+		return
+	}
+
+	cook.Name = "deleted"
+	cook.Value = "unuse"
+	cook.Expires = time.Unix(1414414788, 1414414788000)
+
+	r := message{
+		Message: "loged out",
+		Success: true,
+	}
+	c.JSON(http.StatusOK, r)
+}
+
+func (h Handler) CreateTodo(c *gin.Context) {
+	cookie, err := c.Request.Cookie("userID")
+	if err != nil {
+		r := message{
+			Message: "cookie is not set",
+			Success: false,
+		}
+		c.JSON(http.StatusUnauthorized, r)
+		return
+	}
+
+	var rt entity.ReqCreateTodo
+	if err := c.BindJSON(&rt); err != nil {
+		r := message{
+			Message: "invalid json",
+			Success: false,
+		}
+		c.JSON(http.StatusBadRequest, r)
+		fmt.Println(err)
+		return
+	}
+
+	if err := rt.CheckReqCreateTodo(); err != nil {
+		h.HandleErr(err, c)
+		return
+	}
+
+	td, err := h.provider.TodoServiceProvider.CreateTodo(c.Request.Context(), rt, cookie.Value)
+	if err != nil {
+		h.HandleErr(err, c)
+		return
+	}
+
+	c.JSON(http.StatusCreated, td)
 }
 
 func (h Handler) HandleErr(err error, c *gin.Context) {
@@ -157,6 +214,12 @@ func (h Handler) HandleErr(err error, c *gin.Context) {
 				Success: false,
 			}
 			c.JSON(http.StatusUnauthorized, r)
+		case codes.InvalidArgument:
+			r := message{
+				Message: sts.Message(),
+				Success: false,
+			}
+			c.JSON(http.StatusBadRequest, r)
 		default:
 			r := message{
 				Message: sts.Message(),
@@ -176,7 +239,7 @@ func (h Handler) HandleErr(err error, c *gin.Context) {
 			Success: false,
 		}
 		c.JSON(http.StatusForbidden, r)
-	}else if errors.Is(err, customErr.ERR_INVALID_INPUT){
+	} else if errors.Is(err, customErr.ERR_INVALID_INPUT) {
 		r := message{
 			Message: err.Error(),
 			Success: false,

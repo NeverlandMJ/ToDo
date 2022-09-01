@@ -93,7 +93,7 @@ func (c userServiceGRPCClient) SignIn(ctx context.Context, data entity.ReqSignIn
 		return "", err
 	}
 
-	if !resp.IsBlocked {
+	if resp.IsBlocked {
 		return "", customErr.ERR_USER_BLOCKED
 	}
 

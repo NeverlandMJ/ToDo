@@ -18,13 +18,13 @@ type UserServiceProvider interface {
 }
 
 type TodoServiceProvider interface {
-	
+	CreateTodo(ctx context.Context, td entity.ReqCreateTodo, userID string) (entity.RespTodo, error)
 }
 
 func NewProvider(userServiceURL, todoServiceURL string) Provider {
 	return Provider{
 		UserServiceProvider: NewGRPCClientUser(userServiceURL),
-		// TodoServiceProvider: NewGRPCClientTodo(todoServiceURL),
+		TodoServiceProvider: NewGRPCClientTodo(todoServiceURL),
 	}
 }
 

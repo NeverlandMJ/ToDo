@@ -18,17 +18,18 @@ func Authentication(c *gin.Context) {
 	if err != nil {
 		if err == http.ErrNoCookie {
 			r := message{
-				Message: "user ro'yxatdan o'tmagan",
+				Message: "user is not regostrated",
 				Success: false,
 			}
 			c.JSON(http.StatusUnauthorized, r)
 			return
+		} else {
+			r := message{
+				Message: "invalid request has been made",
+				Success: false,
+			}
+			c.JSON(http.StatusBadRequest, r)
 		}
-		r := message{
-			Message: "noto'g'ri so'rov amalga oshirildi",
-			Success: false,
-		}
-		c.JSON(http.StatusBadRequest, r)
 		return
 	}
 
@@ -40,31 +41,41 @@ func Authentication(c *gin.Context) {
 	})
 
 	if err != nil {
-		if err == jwt.ErrSignatureInvalid {
+		if err == http.ErrNoCookie {
 			r := message{
-				Message: "user ro'yxatdan o'tmagan",
+				Message: "user is not registrated",
 				Success: false,
 			}
 			c.JSON(http.StatusUnauthorized, r)
 			return
+		}else {
+			r := message{
+				Message: "invalid request has been made",
+				Success: false,
+			}
+			c.JSON(http.StatusBadRequest, r)
 		}
-		r := message{
-			Message: "noto'g'ri so'rov amalga oshirildi",
-			Success: false,
-		}
-		c.JSON(http.StatusBadRequest, r)
 		return
 	}
 	if !tkn.Valid {
 		r := message{
-			Message: "user ro'yxatdan o'tmagan yoki tokenni vaqti o'tib ketgan",
+			Message: "token has been expired please login again",
 			Success: false,
 		}
 		c.JSON(http.StatusUnauthorized, r)
 		return
 	}
 
-	c.Set("claims", claims)
-
+	c.SetCookie(
+		"userID",
+		claims.ID,
+		60,
+		"/",
+		"localhost",
+		false,
+		true,
+	)
+	
 	c.Next()
 }
+
