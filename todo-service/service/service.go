@@ -44,8 +44,8 @@ func (s Service) GetTodo(ctx context.Context, id uuid.UUID) (entity.Todo, error)
 }
 
 // MarkAsDone ...
-func (s Service) MarkAsDone(ctx context.Context, id uuid.UUID) error {
-	err := s.Repo.MarkAsDone(ctx, id)
+func (s Service) MarkAsDone(ctx context.Context, userID uuid.UUID, todoID uuid.UUID) error {
+	err := s.Repo.MarkAsDone(ctx, userID, todoID)
 	if err != nil {
 		return err
 	}

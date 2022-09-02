@@ -24,7 +24,7 @@ const _ = grpc.SupportPackageIsVersion7
 type TodoServiceClient interface {
 	CreateTodo(ctx context.Context, in *RequestTodo, opts ...grpc.CallOption) (*ResponseTodo, error)
 	GetTodoByID(ctx context.Context, in *RequestTodoID, opts ...grpc.CallOption) (*ResponseTodo, error)
-	MarkAsDone(ctx context.Context, in *RequestTodoID, opts ...grpc.CallOption) (*Empty, error)
+	MarkAsDone(ctx context.Context, in *RequestMarkAsDone, opts ...grpc.CallOption) (*Empty, error)
 	DeleteTodoByID(ctx context.Context, in *RequestTodoID, opts ...grpc.CallOption) (*Empty, error)
 	GetAllTodos(ctx context.Context, in *RequestUserID, opts ...grpc.CallOption) (*ResponseAllTodos, error)
 	UpdateTodosBody(ctx context.Context, in *RequestUpdateTodosBody, opts ...grpc.CallOption) (*Empty, error)
@@ -59,7 +59,7 @@ func (c *todoServiceClient) GetTodoByID(ctx context.Context, in *RequestTodoID, 
 	return out, nil
 }
 
-func (c *todoServiceClient) MarkAsDone(ctx context.Context, in *RequestTodoID, opts ...grpc.CallOption) (*Empty, error) {
+func (c *todoServiceClient) MarkAsDone(ctx context.Context, in *RequestMarkAsDone, opts ...grpc.CallOption) (*Empty, error) {
 	out := new(Empty)
 	err := c.cc.Invoke(ctx, "/todopb.TodoService/MarkAsDone", in, out, opts...)
 	if err != nil {
@@ -128,7 +128,7 @@ func (c *todoServiceClient) DeletePassedDeadline(ctx context.Context, in *Reques
 type TodoServiceServer interface {
 	CreateTodo(context.Context, *RequestTodo) (*ResponseTodo, error)
 	GetTodoByID(context.Context, *RequestTodoID) (*ResponseTodo, error)
-	MarkAsDone(context.Context, *RequestTodoID) (*Empty, error)
+	MarkAsDone(context.Context, *RequestMarkAsDone) (*Empty, error)
 	DeleteTodoByID(context.Context, *RequestTodoID) (*Empty, error)
 	GetAllTodos(context.Context, *RequestUserID) (*ResponseAllTodos, error)
 	UpdateTodosBody(context.Context, *RequestUpdateTodosBody) (*Empty, error)
@@ -148,7 +148,7 @@ func (UnimplementedTodoServiceServer) CreateTodo(context.Context, *RequestTodo) 
 func (UnimplementedTodoServiceServer) GetTodoByID(context.Context, *RequestTodoID) (*ResponseTodo, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetTodoByID not implemented")
 }
-func (UnimplementedTodoServiceServer) MarkAsDone(context.Context, *RequestTodoID) (*Empty, error) {
+func (UnimplementedTodoServiceServer) MarkAsDone(context.Context, *RequestMarkAsDone) (*Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method MarkAsDone not implemented")
 }
 func (UnimplementedTodoServiceServer) DeleteTodoByID(context.Context, *RequestTodoID) (*Empty, error) {
@@ -219,7 +219,7 @@ func _TodoService_GetTodoByID_Handler(srv interface{}, ctx context.Context, dec 
 }
 
 func _TodoService_MarkAsDone_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RequestTodoID)
+	in := new(RequestMarkAsDone)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -231,7 +231,7 @@ func _TodoService_MarkAsDone_Handler(srv interface{}, ctx context.Context, dec f
 		FullMethod: "/todopb.TodoService/MarkAsDone",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TodoServiceServer).MarkAsDone(ctx, req.(*RequestTodoID))
+		return srv.(TodoServiceServer).MarkAsDone(ctx, req.(*RequestMarkAsDone))
 	}
 	return interceptor(ctx, in, info, handler)
 }

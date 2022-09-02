@@ -83,7 +83,7 @@ func TestServer_MarkAsDone(t *testing.T) {
 		err = s.CreateTodo(context.Background(), todo)
 		require.NoError(t, err)
 
-		err = s.MarkAsDone(context.Background(), todo.ID)
+		err = s.MarkAsDone(context.Background(), todo.UserID, todo.ID)
 		require.NoError(t, err)
 
 		td, err := s.GetTodo(context.Background(), todo.ID)
@@ -98,7 +98,7 @@ func TestServer_MarkAsDone(t *testing.T) {
 		err := insertTestUser(s)
 		require.NoError(t, err)
 
-		err = s.MarkAsDone(context.Background(), uuid.New())
+		err = s.MarkAsDone(context.Background(), uuid.New(), uuid.New())
 		
 		require.ErrorIs(t, err, customerr.ERR_TODO_NOT_EXIST)
 	})
@@ -261,7 +261,7 @@ func TestServer_DeletDoneTodos(t *testing.T) {
 		err = s.CreateTodo(context.Background(), todo3)
 		require.NoError(t, err)
 
-		err = s.MarkAsDone(context.Background(), todo3.ID)
+		err = s.MarkAsDone(context.Background(), todo3.UserID, todo3.ID)
 		require.NoError(t, err)
 
 		err = s.DeleteDoneTodos(context.Background(), testUserID)

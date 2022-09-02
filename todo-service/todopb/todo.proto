@@ -7,7 +7,7 @@ package todopb;
 service TodoService {
     rpc CreateTodo(RequestTodo) returns (ResponseTodo);
     rpc GetTodoByID(RequestTodoID) returns (ResponseTodo);
-    rpc MarkAsDone(RequestTodoID) returns (Empty);
+    rpc MarkAsDone(RequestMarkAsDone) returns (Empty);
     rpc DeleteTodoByID(RequestTodoID) returns (Empty);
     rpc GetAllTodos(RequestUserID) returns (ResponseAllTodos);
     rpc UpdateTodosBody(RequestUpdateTodosBody) returns (Empty);
@@ -17,6 +17,11 @@ service TodoService {
 }   
 
 message Empty {}
+
+message RequestMarkAsDone {
+    string user_id = 1;
+    string todo_id = 2;
+}
 
 message RequestTodo {
     string user_id = 1;

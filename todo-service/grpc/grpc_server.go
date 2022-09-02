@@ -97,14 +97,19 @@ func (g *gRPCServer) GetTodoByID(ctx context.Context, req *todopb.RequestTodoID)
 }
 
 // MarkAsDone marks todo as done by the given todo ID
-func (g *gRPCServer) MarkAsDone(ctx context.Context, req *todopb.RequestTodoID) (*todopb.Empty, error) {
-	id, err := uuid.Parse(req.GetId())
+func (g *gRPCServer) MarkAsDone(ctx context.Context, req *todopb.RequestMarkAsDone) (*todopb.Empty, error) {
+ 	userID, err := uuid.Parse(req.GetUserId())
 	if err != nil {
 		log.Println(err)
-		return nil, status.Error(codes.InvalidArgument, "ID is not uuid")
+		return nil, status.Error(codes.InvalidArgument, "userID is not uuid")
+	}
+ 	todoID, err := uuid.Parse(req.GetTodoId())
+	if err != nil {
+		log.Println(err)
+		return nil, status.Error(codes.InvalidArgument, "todoID is not uuid")
 	}
 
-	err = g.svc.MarkAsDone(ctx, id)
+	err = g.svc.MarkAsDone(ctx, userID, todoID)
 	if err != nil {
 		log.Println(err)
 		if errors.Is(err, customerr.ERR_TODO_NOT_EXIST) {

@@ -82,27 +82,27 @@ func TestService_GetTodo(t *testing.T) {
 func TestService_MarkAsDone(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		repos := newRepos(t)
-		repos.EXPECT().MarkAsDone(gomock.Any(), gomock.Any()).Return(nil)
+		repos.EXPECT().MarkAsDone(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
 
 		s := NewService(repos)
-		err := s.MarkAsDone(context.Background(), uuid.New())
+		err := s.MarkAsDone(context.Background(), uuid.New(), uuid.New())
 		require.NoError(t, err)
 	})
 
 	t.Run("returns error", func(t *testing.T) {
 		repos := newRepos(t)
-		repos.EXPECT().MarkAsDone(gomock.Any(), gomock.Any()).Return(fmt.Errorf("error"))
+		repos.EXPECT().MarkAsDone(gomock.Any(), gomock.Any(), gomock.Any()).Return(fmt.Errorf("error"))
 
 		s := NewService(repos)
-		err := s.MarkAsDone(context.Background(), uuid.New())
+		err := s.MarkAsDone(context.Background(), uuid.New(), uuid.New())
 		require.Error(t, err)
 	})
 		t.Run("todo doesn't eixst", func(t *testing.T) {
 		repos := newRepos(t)
-		repos.EXPECT().MarkAsDone(gomock.Any(), gomock.Any()).Return(customerr.ERR_TODO_NOT_EXIST)
+		repos.EXPECT().MarkAsDone(gomock.Any(), gomock.Any(), gomock.Any()).Return(customerr.ERR_TODO_NOT_EXIST)
 
 		s := NewService(repos)
-		err := s.MarkAsDone(context.Background(), uuid.New())
+		err := s.MarkAsDone(context.Background(), uuid.New(), uuid.New())
 		require.ErrorIs(t, err, customerr.ERR_TODO_NOT_EXIST)
 	})
 }

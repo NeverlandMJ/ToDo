@@ -66,15 +66,15 @@ func (s Server) GetTodo(ctx context.Context, id uuid.UUID) (entity.Todo, error) 
 
 // MarkAsDone updates todo's is_done field by changing it to true. 
 // If there is not todo by the given ID, it returns customerr.ERR_TODO_NOT_EXIST
-func (s Server) MarkAsDone(ctx context.Context, id uuid.UUID) error {
-	exist := s.CheckIfExists(ctx, id)
+func (s Server) MarkAsDone(ctx context.Context, userID uuid.UUID, todoID uuid.UUID) error {
+	exist := s.CheckIfExists(ctx, todoID)
 	if !exist {
 		return customerr.ERR_TODO_NOT_EXIST
 	}
 
 	_, err := s.db.ExecContext(ctx, `
-		UPDATE todos SET is_done = true WHERE id=$1 
-	`, id)
+		UPDATE todos SET is_done = true WHERE id=$1 AND user_id=$2
+	`, todoID, userID)
 
 	if err != nil {
 		return err

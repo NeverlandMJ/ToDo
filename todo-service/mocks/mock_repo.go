@@ -124,17 +124,17 @@ func (mr *MockRepositoryMockRecorder) GetTodo(arg0, arg1 interface{}) *gomock.Ca
 }
 
 // MarkAsDone mocks base method.
-func (m *MockRepository) MarkAsDone(arg0 context.Context, arg1 uuid.UUID) error {
+func (m *MockRepository) MarkAsDone(arg0 context.Context, arg1, arg2 uuid.UUID) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "MarkAsDone", arg0, arg1)
+	ret := m.ctrl.Call(m, "MarkAsDone", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // MarkAsDone indicates an expected call of MarkAsDone.
-func (mr *MockRepositoryMockRecorder) MarkAsDone(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) MarkAsDone(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MarkAsDone", reflect.TypeOf((*MockRepository)(nil).MarkAsDone), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MarkAsDone", reflect.TypeOf((*MockRepository)(nil).MarkAsDone), arg0, arg1, arg2)
 }
 
 // UpdateTodosBody mocks base method.

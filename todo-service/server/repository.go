@@ -12,7 +12,7 @@ import (
 type Repository interface {
 	CreateTodo(ctx context.Context, td entity.Todo) error
 	GetTodo(ctx context.Context, id uuid.UUID) (entity.Todo, error)
-	MarkAsDone(ctx context.Context, id uuid.UUID) error
+	MarkAsDone(ctx context.Context, userID uuid.UUID, todoID uuid.UUID) error
 	DeleteTodo(ctx context.Context, id uuid.UUID) error
 	GetAllTodos(ctx context.Context, userID uuid.UUID) ([]entity.Todo, error)
 	UpdateTodosBody(ctx context.Context, id uuid.UUID, newBody string) error
