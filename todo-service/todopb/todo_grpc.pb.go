@@ -25,6 +25,12 @@ type TodoServiceClient interface {
 	CreateTodo(ctx context.Context, in *RequestTodo, opts ...grpc.CallOption) (*ResponseTodo, error)
 	GetTodoByID(ctx context.Context, in *RequestTodoID, opts ...grpc.CallOption) (*ResponseTodo, error)
 	MarkAsDone(ctx context.Context, in *RequestTodoID, opts ...grpc.CallOption) (*Empty, error)
+	DeleteTodoByID(ctx context.Context, in *RequestTodoID, opts ...grpc.CallOption) (*Empty, error)
+	GetAllTodos(ctx context.Context, in *RequestUserID, opts ...grpc.CallOption) (*ResponseAllTodos, error)
+	UpdateTodosBody(ctx context.Context, in *RequestUpdateTodosBody, opts ...grpc.CallOption) (*Empty, error)
+	UpdateTodosDeadline(ctx context.Context, in *RequestUpdateTodosDeadline, opts ...grpc.CallOption) (*Empty, error)
+	DeleteDoneTodos(ctx context.Context, in *RequestUserID, opts ...grpc.CallOption) (*Empty, error)
+	DeletePassedDeadline(ctx context.Context, in *RequestUserID, opts ...grpc.CallOption) (*Empty, error)
 }
 
 type todoServiceClient struct {
@@ -62,6 +68,60 @@ func (c *todoServiceClient) MarkAsDone(ctx context.Context, in *RequestTodoID, o
 	return out, nil
 }
 
+func (c *todoServiceClient) DeleteTodoByID(ctx context.Context, in *RequestTodoID, opts ...grpc.CallOption) (*Empty, error) {
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, "/todopb.TodoService/DeleteTodoByID", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *todoServiceClient) GetAllTodos(ctx context.Context, in *RequestUserID, opts ...grpc.CallOption) (*ResponseAllTodos, error) {
+	out := new(ResponseAllTodos)
+	err := c.cc.Invoke(ctx, "/todopb.TodoService/GetAllTodos", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *todoServiceClient) UpdateTodosBody(ctx context.Context, in *RequestUpdateTodosBody, opts ...grpc.CallOption) (*Empty, error) {
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, "/todopb.TodoService/UpdateTodosBody", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *todoServiceClient) UpdateTodosDeadline(ctx context.Context, in *RequestUpdateTodosDeadline, opts ...grpc.CallOption) (*Empty, error) {
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, "/todopb.TodoService/UpdateTodosDeadline", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *todoServiceClient) DeleteDoneTodos(ctx context.Context, in *RequestUserID, opts ...grpc.CallOption) (*Empty, error) {
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, "/todopb.TodoService/DeleteDoneTodos", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *todoServiceClient) DeletePassedDeadline(ctx context.Context, in *RequestUserID, opts ...grpc.CallOption) (*Empty, error) {
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, "/todopb.TodoService/DeletePassedDeadline", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // TodoServiceServer is the server API for TodoService service.
 // All implementations must embed UnimplementedTodoServiceServer
 // for forward compatibility
@@ -69,6 +129,12 @@ type TodoServiceServer interface {
 	CreateTodo(context.Context, *RequestTodo) (*ResponseTodo, error)
 	GetTodoByID(context.Context, *RequestTodoID) (*ResponseTodo, error)
 	MarkAsDone(context.Context, *RequestTodoID) (*Empty, error)
+	DeleteTodoByID(context.Context, *RequestTodoID) (*Empty, error)
+	GetAllTodos(context.Context, *RequestUserID) (*ResponseAllTodos, error)
+	UpdateTodosBody(context.Context, *RequestUpdateTodosBody) (*Empty, error)
+	UpdateTodosDeadline(context.Context, *RequestUpdateTodosDeadline) (*Empty, error)
+	DeleteDoneTodos(context.Context, *RequestUserID) (*Empty, error)
+	DeletePassedDeadline(context.Context, *RequestUserID) (*Empty, error)
 	mustEmbedUnimplementedTodoServiceServer()
 }
 
@@ -84,6 +150,24 @@ func (UnimplementedTodoServiceServer) GetTodoByID(context.Context, *RequestTodoI
 }
 func (UnimplementedTodoServiceServer) MarkAsDone(context.Context, *RequestTodoID) (*Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method MarkAsDone not implemented")
+}
+func (UnimplementedTodoServiceServer) DeleteTodoByID(context.Context, *RequestTodoID) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteTodoByID not implemented")
+}
+func (UnimplementedTodoServiceServer) GetAllTodos(context.Context, *RequestUserID) (*ResponseAllTodos, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAllTodos not implemented")
+}
+func (UnimplementedTodoServiceServer) UpdateTodosBody(context.Context, *RequestUpdateTodosBody) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateTodosBody not implemented")
+}
+func (UnimplementedTodoServiceServer) UpdateTodosDeadline(context.Context, *RequestUpdateTodosDeadline) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateTodosDeadline not implemented")
+}
+func (UnimplementedTodoServiceServer) DeleteDoneTodos(context.Context, *RequestUserID) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteDoneTodos not implemented")
+}
+func (UnimplementedTodoServiceServer) DeletePassedDeadline(context.Context, *RequestUserID) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeletePassedDeadline not implemented")
 }
 func (UnimplementedTodoServiceServer) mustEmbedUnimplementedTodoServiceServer() {}
 
@@ -152,6 +236,114 @@ func _TodoService_MarkAsDone_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _TodoService_DeleteTodoByID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RequestTodoID)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TodoServiceServer).DeleteTodoByID(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/todopb.TodoService/DeleteTodoByID",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TodoServiceServer).DeleteTodoByID(ctx, req.(*RequestTodoID))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TodoService_GetAllTodos_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RequestUserID)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TodoServiceServer).GetAllTodos(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/todopb.TodoService/GetAllTodos",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TodoServiceServer).GetAllTodos(ctx, req.(*RequestUserID))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TodoService_UpdateTodosBody_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RequestUpdateTodosBody)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TodoServiceServer).UpdateTodosBody(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/todopb.TodoService/UpdateTodosBody",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TodoServiceServer).UpdateTodosBody(ctx, req.(*RequestUpdateTodosBody))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TodoService_UpdateTodosDeadline_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RequestUpdateTodosDeadline)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TodoServiceServer).UpdateTodosDeadline(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/todopb.TodoService/UpdateTodosDeadline",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TodoServiceServer).UpdateTodosDeadline(ctx, req.(*RequestUpdateTodosDeadline))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TodoService_DeleteDoneTodos_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RequestUserID)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TodoServiceServer).DeleteDoneTodos(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/todopb.TodoService/DeleteDoneTodos",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TodoServiceServer).DeleteDoneTodos(ctx, req.(*RequestUserID))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TodoService_DeletePassedDeadline_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RequestUserID)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TodoServiceServer).DeletePassedDeadline(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/todopb.TodoService/DeletePassedDeadline",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TodoServiceServer).DeletePassedDeadline(ctx, req.(*RequestUserID))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // TodoService_ServiceDesc is the grpc.ServiceDesc for TodoService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -170,6 +362,30 @@ var TodoService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "MarkAsDone",
 			Handler:    _TodoService_MarkAsDone_Handler,
+		},
+		{
+			MethodName: "DeleteTodoByID",
+			Handler:    _TodoService_DeleteTodoByID_Handler,
+		},
+		{
+			MethodName: "GetAllTodos",
+			Handler:    _TodoService_GetAllTodos_Handler,
+		},
+		{
+			MethodName: "UpdateTodosBody",
+			Handler:    _TodoService_UpdateTodosBody_Handler,
+		},
+		{
+			MethodName: "UpdateTodosDeadline",
+			Handler:    _TodoService_UpdateTodosDeadline_Handler,
+		},
+		{
+			MethodName: "DeleteDoneTodos",
+			Handler:    _TodoService_DeleteDoneTodos_Handler,
+		},
+		{
+			MethodName: "DeletePassedDeadline",
+			Handler:    _TodoService_DeletePassedDeadline_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

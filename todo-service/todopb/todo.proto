@@ -8,7 +8,13 @@ service TodoService {
     rpc CreateTodo(RequestTodo) returns (ResponseTodo);
     rpc GetTodoByID(RequestTodoID) returns (ResponseTodo);
     rpc MarkAsDone(RequestTodoID) returns (Empty);
-}
+    rpc DeleteTodoByID(RequestTodoID) returns (Empty);
+    rpc GetAllTodos(RequestUserID) returns (ResponseAllTodos);
+    rpc UpdateTodosBody(RequestUpdateTodosBody) returns (Empty);
+    rpc UpdateTodosDeadline(RequestUpdateTodosDeadline) returns (Empty);
+    rpc DeleteDoneTodos(RequestUserID) returns (Empty);
+    rpc DeletePassedDeadline(RequestUserID) returns (Empty);
+}   
 
 message Empty {}
 
@@ -27,7 +33,24 @@ message ResponseTodo {
     bool is_done = 6;
 }
 
+message ResponseAllTodos {
+    repeated ResponseTodo responseTodos = 1;
+}
+
 message RequestTodoID {
     string id = 1;
 }
 
+message RequestUserID {
+    string id = 1;
+}
+
+message RequestUpdateTodosBody {
+    string id = 1;
+    string new_body = 2;
+}
+
+message RequestUpdateTodosDeadline {
+    string id = 1;
+    string new_deadline = 2;
+}

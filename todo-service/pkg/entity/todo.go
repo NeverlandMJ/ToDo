@@ -1,8 +1,9 @@
 package entity
 
 import (
-	"github.com/google/uuid"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type Todo struct {
@@ -14,19 +15,16 @@ type Todo struct {
 	IsDone    bool      `json:"is_done"`
 }
 
-func NewTodo(deadline time.Time, body string, userID uuid.UUID) (Todo, error) {
-	// tm := time.Now().Format("UnixDate")
-	// created, err := time.Parse("UnixDate", tm)
-	// if err != nil {
-	// 	return Todo{}, err
-	// }
+func NewTodo(deadline time.Time, body string, userID uuid.UUID) Todo {
+	tm := time.Now().UTC().Format(time.UnixDate)
+	created, _ := time.Parse(time.UnixDate, tm)
 
 	return Todo{
 		ID:        uuid.New(),
 		UserID:    userID,
 		Body:      body,
-		CreatedAt: time.Now().UTC(),
+		CreatedAt: created,
 		Deadline:  deadline,
 		IsDone:    false,
-	}, nil
+	}
 }

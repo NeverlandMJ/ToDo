@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"time"
 
 	"github.com/NeverlandMJ/ToDo/todo-service/pkg/entity"
 	"github.com/NeverlandMJ/ToDo/todo-service/server"
@@ -19,12 +20,9 @@ func NewService(repo server.Repository) *Service {
 }
 
 func (s Service) CreateTodo(ctx context.Context, td entity.Todo) (entity.Todo, error) {
-	newTd, err := entity.NewTodo(td.Deadline, td.Body, td.UserID)
-	if err != nil {
-		return entity.Todo{}, err
-	}
+	newTd := entity.NewTodo(td.Deadline, td.Body, td.UserID)
 
-	err = s.Repo.CreateTodo(ctx, newTd)
+	err := s.Repo.CreateTodo(ctx, newTd)
 	if err != nil {
 		return entity.Todo{}, err
 	}
@@ -33,15 +31,67 @@ func (s Service) CreateTodo(ctx context.Context, td entity.Todo) (entity.Todo, e
 }
 
 func (s Service) GetTodo(ctx context.Context, id uuid.UUID) (entity.Todo, error) {
-	gotTd, err := s.Repo.GetTodo(ctx, id)
+	got, err := s.Repo.GetTodo(ctx, id)
 	if err != nil {
 		return entity.Todo{}, err
 	}
-	return gotTd, nil
+	return got, nil
 }
 
 func (s Service) MarkAsDone(ctx context.Context, id uuid.UUID) error {
 	err := s.Repo.MarkAsDone(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s Service) DeleteTodoByID(ctx context.Context, id uuid.UUID) error  {
+	err := s.Repo.DeleteTodo(ctx, id)
+	if err != nil {
+		return  err
+	}
+
+	return nil
+}
+
+func (s Service) GetAllTodos(ctx context.Context, userID uuid.UUID) ([]entity.Todo, error)  {
+	tds, err := s.Repo.GetAllTodos(ctx, userID)
+	if err != nil {
+		return []entity.Todo{}, err
+	}
+
+	return tds, nil
+}
+
+func (s Service) UpdateTodosBody(ctx context.Context, id uuid.UUID, newBody string) error {
+	err := s.Repo.UpdateTodosBody(ctx, id, newBody)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s Service) UpdateTodosDeadline(ctx context.Context, id uuid.UUID, newDeadline time.Time) error  {
+	err := s.Repo.UpdateTodosDeadline(ctx, id, newDeadline)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s Service) DeleteDoneTodos(ctx context.Context, userID uuid.UUID) error  {
+	err := s.Repo.DeleteDoneTodos(ctx, userID)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s Service) DeletePassedDeadline(ctx context.Context, userID uuid.UUID) error {
+	err := s.Repo.DeletePassedDeadline(ctx, userID)
 	if err != nil {
 		return err
 	}
