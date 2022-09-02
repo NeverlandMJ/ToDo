@@ -1,1 +1,4 @@
 user-service/.env
+todo-service/.env
+.vscode
+todo-service/.vscode

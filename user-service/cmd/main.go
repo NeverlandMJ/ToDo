@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net"
 
 	"github.com/NeverlandMJ/ToDo/user-service/config"
@@ -33,7 +34,7 @@ func RunGRPCServer(svc service.Service) {
 	if err != nil {
 		panic(err)
 	}
-
+	fmt.Println("server started at localhost:9000")
 	s := grpc.NewServer()
 	userpb.RegisterUserServiceServer(s, grpc_server.NewgRPCServer(svc))
 
