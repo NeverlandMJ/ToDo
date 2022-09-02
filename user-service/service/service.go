@@ -9,11 +9,14 @@ import (
 	"github.com/google/uuid"
 )
 
+// Service holds a type which implements all the methods of Repository.
+// It acts as a middleman between grpc server and database server
 type Service struct {
 	Repo server.Repository
 	Otp  validate.Otp
 }
 
+// NewService creates a new Service 
 func NewService(repo server.Repository) *Service {
 	return &Service{
 		Repo: repo,
@@ -21,6 +24,8 @@ func NewService(repo server.Repository) *Service {
 	}
 }
 
+// CreateUsernameAndPassword generates default user_name and password for user and send it to the user.
+// User uses them to sign in. After signing in user can change those default user_name and password.
 func (s Service) CreateUsernameAndPassword(ctx context.Context) (entity.ResponseUser, error) {
 	pw, err := validate.GeneratePassword()
 	if err != nil {
@@ -34,6 +39,7 @@ func (s Service) CreateUsernameAndPassword(ctx context.Context) (entity.Response
 	}, nil
 }
 
+// CreateUser .. 
 func (s Service) CreateUser(ctx context.Context, user entity.User) error {
 	user = entity.NewUser(user.UserName, user.Password, user.Phone)
 	err := s.Repo.CreateUser(ctx, user)
@@ -43,6 +49,7 @@ func (s Service) CreateUser(ctx context.Context, user entity.User) error {
 	return nil
 }
 
+// GetUser ...
 func (s Service) GetUser(ctx context.Context, username, password string) (entity.User, error) {
 	user, err := s.Repo.GetUser(ctx, username, password)
 	if err != nil {
@@ -52,6 +59,7 @@ func (s Service) GetUser(ctx context.Context, username, password string) (entity
 	return user, nil
 }
 
+// ChangePassword ...
 func (s Service) ChangePassword(ctx context.Context, userID uuid.UUID, oldPW, newPW string) error {
 	err := s.Repo.ChangePassword(ctx, userID, oldPW, newPW)
 	if err != nil {
@@ -61,6 +69,7 @@ func (s Service) ChangePassword(ctx context.Context, userID uuid.UUID, oldPW, ne
 	return nil
 }
 
+// ChangeUserName ... 
 func (s Service) ChangeUserName(ctx context.Context, userID uuid.UUID, newUN string) error {
 	err := s.Repo.ChangeUserName(ctx, userID, newUN)
 	if err != nil {
@@ -69,8 +78,14 @@ func (s Service) ChangeUserName(ctx context.Context, userID uuid.UUID, newUN str
 	return nil
 }
 
+// DeleteAccount ... 
 func (s Service) DeleteAccount(ctx context.Context, userID uuid.UUID, password, userName string) error {
-	err := s.Repo.DeleteAccount(ctx, userID, password, userName)
+	u, err := s.GetUser(ctx, password, userName)
+	if err != nil {
+		return err
+	}
+
+	err = s.Repo.DeleteAccount(ctx, u.ID, u.Password, u.UserName)
 	if err != nil {
 		return err
 	}

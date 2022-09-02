@@ -128,3 +128,45 @@ func TestService_ChangeUserName(t *testing.T) {
 		require.ErrorIs(t, err, customErr.ERR_USER_NOT_EXIST)
 	})
 }
+
+func TestService_DeleteAccount(t *testing.T) {
+	t.Run("success", func(t *testing.T) {
+		want := entity.User{
+			ID:        uuid.New(),
+			UserName:  "sunbula",
+			Password:  "213",
+			Phone:     "+123456789",
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+			IsBlocked: true,
+		}
+		ctrl := gomock.NewController(t)
+		mockRepo := mocks.NewMockRepository(ctrl)
+		mockRepo.EXPECT().GetUser(gomock.Any(), gomock.Any(), gomock.Any()).Return(want, nil)
+		mockRepo.EXPECT().DeleteAccount(gomock.Any(), want.ID, want.Password, want.UserName).Return(nil)
+
+		s := service.NewService(mockRepo)
+		err := s.DeleteAccount(context.Background(), want.ID, want.Password, want.UserName)
+		require.NoError(t, err)
+	})
+
+	t.Run("user doesn't exist", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		mockRepo := mocks.NewMockRepository(ctrl)
+		mockRepo.EXPECT().GetUser(gomock.Any(), gomock.Any(), gomock.Any()).Return(entity.User{}, customErr.ERR_USER_NOT_EXIST)
+
+		s := service.NewService(mockRepo)
+		err := s.DeleteAccount(context.Background(), uuid.New(), "pw", "un")
+		require.ErrorIs(t, err, customErr.ERR_USER_NOT_EXIST)
+	})
+
+	t.Run("password incorrect", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		mockRepo := mocks.NewMockRepository(ctrl)
+		mockRepo.EXPECT().GetUser(gomock.Any(), gomock.Any(), gomock.Any()).Return(entity.User{}, customErr.ERR_INCORRECT_PASSWORD)
+
+		s := service.NewService(mockRepo)
+		err := s.DeleteAccount(context.Background(), uuid.New(), "pw", "un")
+		require.ErrorIs(t, err, customErr.ERR_INCORRECT_PASSWORD)
+	})
+}

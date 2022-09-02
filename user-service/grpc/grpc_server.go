@@ -14,17 +14,20 @@ import (
 	"google.golang.org/grpc/status"
 )
 
+// gRPCServer holds grpc TodoService server and service of the project
 type gRPCServer struct {
 	userpb.UnimplementedUserServiceServer
 	svc service.Service
 }
 
+// NewgRPCServer returns a new grpc server with the given service attached 
 func NewgRPCServer(svc service.Service) *gRPCServer {
 	return &gRPCServer{
 		svc: svc,
 	}
 }
 
+// SendCode sends TOTP code to the user's phone
 func (g *gRPCServer) SendCode(ctx context.Context, req *userpb.RequestPhone) (*userpb.RequestPhone, error) {
 	phone := req.GetPhone()
 	_, err := g.svc.Otp.SendOtp(phone)
@@ -39,6 +42,7 @@ func (g *gRPCServer) SendCode(ctx context.Context, req *userpb.RequestPhone) (*u
 
 }
 
+// RegisterUser generates default user name and password and registrates user if user entres correct totp code
 func (g *gRPCServer) RegisterUser(ctx context.Context, req *userpb.Code) (*userpb.ResponseUser, error) {
 	err := g.svc.Otp.CheckOtp(req.GetPhone(), req.GetCode())
 	if err != nil {
@@ -78,6 +82,7 @@ func (g *gRPCServer) RegisterUser(ctx context.Context, req *userpb.Code) (*userp
 	}, nil
 }
 
+// SignIn user signs in with user name and password
 func (g *gRPCServer) SignIn(ctx context.Context, req *userpb.SignInUer) (*userpb.User, error) {
 	un := req.GetUserName()
 	pw := req.GetPassword()
@@ -105,6 +110,7 @@ func (g *gRPCServer) SignIn(ctx context.Context, req *userpb.SignInUer) (*userpb
 	}, nil
 }
 
+// ChangePassword after signing in user can change passwor by entering old password and new password
 func (g *gRPCServer) ChangePassword(ctx context.Context, req *userpb.RequestChangePassword) (*userpb.Empty, error) {
 	id, err := uuid.Parse(req.UserID)
 	if err != nil {
@@ -126,6 +132,7 @@ func (g *gRPCServer) ChangePassword(ctx context.Context, req *userpb.RequestChan
 	return &userpb.Empty{}, nil
 }
 
+// ChangeUserName after signing in user can change passwor by entering new user name
 func (g *gRPCServer) ChangeUserName(ctx context.Context, req *userpb.RequestUserName) (*userpb.Empty, error) {
 	id, err := uuid.Parse(req.UserID)
 	if err != nil {
@@ -138,13 +145,14 @@ func (g *gRPCServer) ChangeUserName(ctx context.Context, req *userpb.RequestUser
 		if errors.Is(err, customErr.ERR_USER_EXIST) {
 			return nil, status.Error(codes.NotFound, "user with given id not found")
 		}else {
-			return nil, status.Error(codes.Internal, "internal server error")
+			return nil, status.Error(codes.AlreadyExists, "user name is taken")
 		}
 	}
 
 	return &userpb.Empty{}, nil
 }
 
+// DeleteAccount deletes account by giving id. To authenticate user password and user name are asked
 func (g *gRPCServer) DeleteAccount(ctx context.Context, req *userpb.RequestDeleteAccount) (*userpb.Empty, error)  {
 	id, err := uuid.Parse(req.UserID)
 	if err != nil {

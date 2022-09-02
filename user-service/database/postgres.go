@@ -14,11 +14,8 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
 
-// ""file://./../migrations""
+// Connect connects to database and migrates if necessary
 func Connect(cfg config.Config, path string) (*sql.DB, error) {
-	//protocol: //login:password@host:port/yourDatabase'sName
-	// dbURL := "postgres://sunbula:2307@localhost:5432/test"
-
 	db, err := sql.Open(
 		"pgx",
 		fmt.Sprintf(

@@ -10,7 +10,7 @@ import (
 	openapi "github.com/twilio/twilio-go/rest/verify/v2"
 )
 
-
+// Otp holds necessary cridentials to send code to user's phone number
 type Otp struct {
 	TWILIO_ACCOUNT_SID string
 	TWILIO_AUTH_TOKEN  string
@@ -18,6 +18,7 @@ type Otp struct {
 	client             *twilio.RestClient
 }
 
+// NewOtp creates a new Otp struct
 func NewOtp() Otp {
 	return Otp{
 		TWILIO_ACCOUNT_SID: os.Getenv("TWILIO_ACCOUNT_SID"),
@@ -30,6 +31,8 @@ func NewOtp() Otp {
 	}
 }
 
+
+// SendOtp sends OTP
 func (o *Otp) SendOtp(to string) (string, error) {
 	// code := GenerateCode(6)
 	params := &openapi.CreateVerificationParams{}
@@ -46,6 +49,7 @@ func (o *Otp) SendOtp(to string) (string, error) {
 	return *resp.Sid, nil
 }
 
+// CheckOtp checks if otp codes is valid
 func (o *Otp) CheckOtp(to, code string) error {
 	params := &openapi.CreateVerificationCheckParams{}
 	params.SetTo(to)

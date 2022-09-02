@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 )
 
+// Repository is a main set for database's methods 
 type Repository interface {
 	CreateUser(ctx context.Context, user entity.User) error
 	GetUser(ctx context.Context, username, password string) (entity.User, error)

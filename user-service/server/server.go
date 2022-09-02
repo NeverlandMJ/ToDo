@@ -12,11 +12,13 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
-
+// Server holds databse 
 type Server struct {
 	db *sql.DB
 }
 
+// NewServer returns a new Server with working database attached to it.
+// If an error occuras while connecting to database, it returns an error
 func NewServer(cnfg config.Config, path string) (*Server, error) {
 	conn, err := database.Connect(cnfg, path)
 	if err != nil {
@@ -27,6 +29,7 @@ func NewServer(cnfg config.Config, path string) (*Server, error) {
 	}, nil
 }
 
+// deleteTodo this functions was written to be used as a cleanUP function inside intigrations tests
 func (s Server) deleteUsers() error {
 	if _, err := s.db.Exec(`DELETE FROM users`); err != nil {
 		return err
@@ -35,6 +38,8 @@ func (s Server) deleteUsers() error {
 	return nil
 }
 
+// CheckIfExists checks if the user with given ID actually exists in database.
+// It returns true if the todo exists, otherways false
 func (s Server) CheckIfExists(ctx context.Context, id uuid.UUID) bool {
 	var exist bool
 	err := s.db.QueryRowContext(ctx, `
@@ -52,6 +57,8 @@ func (s Server) CheckIfExists(ctx context.Context, id uuid.UUID) bool {
 	}
 }
 
+// CreateUser inserts a new user into database.
+// It returns customErr.ERR_USER_EXIST if the user already exist OR user_name is already taken
 func (s Server) CreateUser(ctx context.Context, user entity.User) error {
 	bp, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.MinCost)
 	if err != nil {
@@ -67,6 +74,9 @@ func (s Server) CreateUser(ctx context.Context, user entity.User) error {
 	return nil
 }
 
+// GetUser fetches user's data from database by the given username amd password.
+// It returns customErr.ERR_USER_NOT_EXIST if the user doesn't exist.
+// It returns customErr.ERR_INCORRECT_PASSWORD if the password is incorrect
 func (s Server) GetUser(ctx context.Context, username, password string) (entity.User, error) {
 	var u entity.User
 	err := s.db.QueryRowContext(ctx, `
@@ -90,6 +100,9 @@ func (s Server) GetUser(ctx context.Context, username, password string) (entity.
 	return u, nil
 }
 
+// ChangePassword changes user's password by userID. For that old password is required.
+// If old password is incorrect, it returns customErr.ERR_INCORRECT_PASSWORD.
+// If user doesn't exist returns customErr.ERR_USER_NOT_EXIST
 func (s Server) ChangePassword(ctx context.Context, userID uuid.UUID, oldPW, newPW string) error {
 	exist := s.CheckIfExists(ctx, userID)
 	if !exist {
@@ -129,6 +142,9 @@ func (s Server) ChangePassword(ctx context.Context, userID uuid.UUID, oldPW, new
 	return nil
 }
 
+// ChangeUserName changes user_name by userID.
+// If user doesn't exist it returns customErr.ERR_USER_NOT_EXIST
+// If user_name already taken it returns customErr.ERR_USER_EXIST
 func (s Server) ChangeUserName(ctx context.Context, userID uuid.UUID, newUN string) error {
 	exist := s.CheckIfExists(ctx, userID)
 	if !exist {
@@ -137,24 +153,17 @@ func (s Server) ChangeUserName(ctx context.Context, userID uuid.UUID, newUN stri
 
 	_, err := s.db.ExecContext(ctx, `UPDATE users SET user_name=$1 WHERE id=$2`, newUN, userID)
 	if err != nil {
-		return err
+		return customErr.ERR_USER_EXIST
 	}
 
 	return nil
 }
 
+// DeleteAccount deletes user's account by userID.
+// For authentication purposes password and user_name are asked
 func (s Server) DeleteAccount(ctx context.Context, userID uuid.UUID, pw, un string) error  {
-	exist := s.CheckIfExists(ctx, userID)
-	if !exist {
-		return customErr.ERR_USER_NOT_EXIST
-	}
-
-	u, err := s.GetUser(ctx, un, pw)
-	if err != nil {
-		return err
-	}
-
-	_, err = s.db.ExecContext(ctx, `DELETE FROM users WHERE id=$1 AND user_name = $2`, userID, u.UserName)
+	
+	_, err := s.db.ExecContext(ctx, `DELETE FROM users WHERE id=$1 AND user_name = $2`, userID, un)
 	if err != nil {
 		return err
 	}

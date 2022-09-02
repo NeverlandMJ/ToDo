@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 )
 
+// User holds crideantials of user
 type User struct {
 	ID            uuid.UUID    `json:"id"`
 	UserName      string    `json:"user_name"`
@@ -16,15 +17,17 @@ type User struct {
 	IsBlocked     bool      `json:"is_blocked"`
 }
 
+// RequestUser used to send TOTP code
 type RequestUser struct {
 	Phone string `json:"email"`
 }
-
+// ResponseUser used to generate default user name and password
 type ResponseUser struct {
 	UserName string `json:"user_name"`
 	Password string `json:"password"`
 }
 
+// NewUser creates a new user
 func NewUser(username, password, phone string) User {
 	tm := time.Now().UTC().Format(time.UnixDate)
 	t, _ := time.Parse(time.UnixDate, tm)
