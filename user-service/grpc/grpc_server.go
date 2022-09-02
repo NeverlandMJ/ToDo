@@ -6,9 +6,10 @@ import (
 	"log"
 
 	"github.com/NeverlandMJ/ToDo/user-service/pkg/entity"
-	customErr "github.com/NeverlandMJ/ToDo/user-service/pkg/error"
+	"github.com/NeverlandMJ/ToDo/user-service/pkg/customErr"
 	"github.com/NeverlandMJ/ToDo/user-service/service"
-	"github.com/NeverlandMJ/ToDo/user-service/v1/userpb"
+	"github.com/NeverlandMJ/ToDo/user-service/userpb"
+	"github.com/google/uuid"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -86,15 +87,15 @@ func (g *gRPCServer) SignIn(ctx context.Context, req *userpb.SignInUer) (*userpb
 		log.Println(err)
 		if errors.Is(err, customErr.ERR_USER_NOT_EXIST) {
 			return nil, status.Error(codes.NotFound, customErr.ERR_USER_NOT_EXIST.Error())
-		}else if errors.Is(err, customErr.ERR_INCORRECT_PASSWORD){
+		} else if errors.Is(err, customErr.ERR_INCORRECT_PASSWORD) {
 			return nil, status.Error(codes.Unauthenticated, customErr.ERR_INCORRECT_PASSWORD.Error())
-		}else {
+		} else {
 			return nil, status.Error(codes.Internal, "unexpected error")
 		}
 	}
 
 	return &userpb.User{
-		ID:        user.ID,
+		ID:        user.ID.String(),
 		UserName:  user.UserName,
 		Password:  user.Password,
 		Phone:     user.Phone,
@@ -102,4 +103,65 @@ func (g *gRPCServer) SignIn(ctx context.Context, req *userpb.SignInUer) (*userpb
 		UpdatedAt: user.UpdatedAt.String(),
 		IsBlocked: user.IsBlocked,
 	}, nil
+}
+
+func (g *gRPCServer) ChangePassword(ctx context.Context, req *userpb.RequestChangePassword) (*userpb.Empty, error) {
+	id, err := uuid.Parse(req.UserID)
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, "ID is not uuid")
+	}
+
+	err = g.svc.ChangePassword(ctx, id, req.OldPassword, req.NewPassword)
+	if err != nil {
+		log.Println(err)
+		if errors.Is(err, customErr.ERR_USER_EXIST) {
+			return nil, status.Error(codes.NotFound, "user with given id not found")
+		} else if errors.Is(err, customErr.ERR_INCORRECT_PASSWORD) {
+			return nil, status.Error(codes.PermissionDenied, "old password is incorrect")
+		}else {
+			return nil, status.Error(codes.Internal, "internal server error")
+		}
+	}
+
+	return &userpb.Empty{}, nil
+}
+
+func (g *gRPCServer) ChangeUserName(ctx context.Context, req *userpb.RequestUserName) (*userpb.Empty, error) {
+	id, err := uuid.Parse(req.UserID)
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, "ID is not uuid")
+	}
+
+	err = g.svc.ChangeUserName(ctx, id, req.UserName)
+	if err != nil {
+			log.Println(err)
+		if errors.Is(err, customErr.ERR_USER_EXIST) {
+			return nil, status.Error(codes.NotFound, "user with given id not found")
+		}else {
+			return nil, status.Error(codes.Internal, "internal server error")
+		}
+	}
+
+	return &userpb.Empty{}, nil
+}
+
+func (g *gRPCServer) DeleteAccount(ctx context.Context, req *userpb.RequestDeleteAccount) (*userpb.Empty, error)  {
+	id, err := uuid.Parse(req.UserID)
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, "ID is not uuid")
+	}
+
+	err = g.svc.DeleteAccount(ctx, id, req.Password, req.UserName)
+	if err != nil {
+			log.Println(err)
+		if errors.Is(err, customErr.ERR_USER_EXIST) {
+			return nil, status.Error(codes.NotFound, "user with given id not found")
+		}else if errors.Is(err, customErr.ERR_INCORRECT_PASSWORD){
+			return nil, status.Error(codes.PermissionDenied, "password is incorrect")
+		}else {
+			return nil, status.Error(codes.Internal, "internal server error")
+		}
+	}
+
+	return &userpb.Empty{}, nil
 }

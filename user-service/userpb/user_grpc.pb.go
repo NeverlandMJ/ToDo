@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.2.0
 // - protoc             v3.21.5
-// source: v1/userpb/user.proto
+// source: userpb/user.proto
 
 package userpb
 
@@ -25,6 +25,9 @@ type UserServiceClient interface {
 	SendCode(ctx context.Context, in *RequestPhone, opts ...grpc.CallOption) (*RequestPhone, error)
 	RegisterUser(ctx context.Context, in *Code, opts ...grpc.CallOption) (*ResponseUser, error)
 	SignIn(ctx context.Context, in *SignInUer, opts ...grpc.CallOption) (*User, error)
+	ChangePassword(ctx context.Context, in *RequestChangePassword, opts ...grpc.CallOption) (*Empty, error)
+	ChangeUserName(ctx context.Context, in *RequestUserName, opts ...grpc.CallOption) (*Empty, error)
+	DeleteAccount(ctx context.Context, in *RequestDeleteAccount, opts ...grpc.CallOption) (*Empty, error)
 }
 
 type userServiceClient struct {
@@ -62,6 +65,33 @@ func (c *userServiceClient) SignIn(ctx context.Context, in *SignInUer, opts ...g
 	return out, nil
 }
 
+func (c *userServiceClient) ChangePassword(ctx context.Context, in *RequestChangePassword, opts ...grpc.CallOption) (*Empty, error) {
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, "/userpb.UserService/ChangePassword", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServiceClient) ChangeUserName(ctx context.Context, in *RequestUserName, opts ...grpc.CallOption) (*Empty, error) {
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, "/userpb.UserService/ChangeUserName", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServiceClient) DeleteAccount(ctx context.Context, in *RequestDeleteAccount, opts ...grpc.CallOption) (*Empty, error) {
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, "/userpb.UserService/DeleteAccount", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserServiceServer is the server API for UserService service.
 // All implementations must embed UnimplementedUserServiceServer
 // for forward compatibility
@@ -69,6 +99,9 @@ type UserServiceServer interface {
 	SendCode(context.Context, *RequestPhone) (*RequestPhone, error)
 	RegisterUser(context.Context, *Code) (*ResponseUser, error)
 	SignIn(context.Context, *SignInUer) (*User, error)
+	ChangePassword(context.Context, *RequestChangePassword) (*Empty, error)
+	ChangeUserName(context.Context, *RequestUserName) (*Empty, error)
+	DeleteAccount(context.Context, *RequestDeleteAccount) (*Empty, error)
 	mustEmbedUnimplementedUserServiceServer()
 }
 
@@ -84,6 +117,15 @@ func (UnimplementedUserServiceServer) RegisterUser(context.Context, *Code) (*Res
 }
 func (UnimplementedUserServiceServer) SignIn(context.Context, *SignInUer) (*User, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SignIn not implemented")
+}
+func (UnimplementedUserServiceServer) ChangePassword(context.Context, *RequestChangePassword) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ChangePassword not implemented")
+}
+func (UnimplementedUserServiceServer) ChangeUserName(context.Context, *RequestUserName) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ChangeUserName not implemented")
+}
+func (UnimplementedUserServiceServer) DeleteAccount(context.Context, *RequestDeleteAccount) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteAccount not implemented")
 }
 func (UnimplementedUserServiceServer) mustEmbedUnimplementedUserServiceServer() {}
 
@@ -152,6 +194,60 @@ func _UserService_SignIn_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserService_ChangePassword_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RequestChangePassword)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).ChangePassword(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/userpb.UserService/ChangePassword",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).ChangePassword(ctx, req.(*RequestChangePassword))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserService_ChangeUserName_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RequestUserName)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).ChangeUserName(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/userpb.UserService/ChangeUserName",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).ChangeUserName(ctx, req.(*RequestUserName))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserService_DeleteAccount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RequestDeleteAccount)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).DeleteAccount(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/userpb.UserService/DeleteAccount",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).DeleteAccount(ctx, req.(*RequestDeleteAccount))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // UserService_ServiceDesc is the grpc.ServiceDesc for UserService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -171,7 +267,19 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "SignIn",
 			Handler:    _UserService_SignIn_Handler,
 		},
+		{
+			MethodName: "ChangePassword",
+			Handler:    _UserService_ChangePassword_Handler,
+		},
+		{
+			MethodName: "ChangeUserName",
+			Handler:    _UserService_ChangeUserName_Handler,
+		},
+		{
+			MethodName: "DeleteAccount",
+			Handler:    _UserService_DeleteAccount_Handler,
+		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "v1/userpb/user.proto",
+	Metadata: "userpb/user.proto",
 }

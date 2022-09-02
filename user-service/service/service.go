@@ -6,6 +6,7 @@ import (
 	"github.com/NeverlandMJ/ToDo/user-service/pkg/entity"
 	"github.com/NeverlandMJ/ToDo/user-service/pkg/validate"
 	"github.com/NeverlandMJ/ToDo/user-service/server"
+	"github.com/google/uuid"
 )
 
 type Service struct {
@@ -49,4 +50,30 @@ func (s Service) GetUser(ctx context.Context, username, password string) (entity
 	}
 
 	return user, nil
+}
+
+func (s Service) ChangePassword(ctx context.Context, userID uuid.UUID, oldPW, newPW string) error {
+	err := s.Repo.ChangePassword(ctx, userID, oldPW, newPW)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s Service) ChangeUserName(ctx context.Context, userID uuid.UUID, newUN string) error {
+	err := s.Repo.ChangeUserName(ctx, userID, newUN)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s Service) DeleteAccount(ctx context.Context, userID uuid.UUID, password, userName string) error {
+	err := s.Repo.DeleteAccount(ctx, userID, password, userName)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

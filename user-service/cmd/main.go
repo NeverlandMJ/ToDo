@@ -8,7 +8,7 @@ import (
 	grpc_server "github.com/NeverlandMJ/ToDo/user-service/grpc"
 	"github.com/NeverlandMJ/ToDo/user-service/server"
 	"github.com/NeverlandMJ/ToDo/user-service/service"
-	"github.com/NeverlandMJ/ToDo/user-service/v1/userpb"
+	"github.com/NeverlandMJ/ToDo/user-service/userpb"
 	"google.golang.org/grpc"
 )
 

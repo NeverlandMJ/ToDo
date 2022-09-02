@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 	
-	customErr "github.com/NeverlandMJ/ToDo/user-service/pkg/error"
+	"github.com/NeverlandMJ/ToDo/user-service/pkg/customErr"
 	_ "github.com/joho/godotenv/autoload"
 	"github.com/twilio/twilio-go"
 	openapi "github.com/twilio/twilio-go/rest/verify/v2"

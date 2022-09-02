@@ -7,7 +7,7 @@ import (
 )
 
 type User struct {
-	ID            string    `json:"id"`
+	ID            uuid.UUID    `json:"id"`
 	UserName      string    `json:"user_name"`
 	Password      string    `json:"password"`
 	Phone         string    `json:"phone"`
@@ -26,11 +26,11 @@ type ResponseUser struct {
 }
 
 func NewUser(username, password, phone string) User {
-	id := uuid.New()
-	tm := time.Now().UTC().Format("UnixDate")
-	t, _ := time.Parse("UnixDate", tm)
+	tm := time.Now().UTC().Format(time.UnixDate)
+	t, _ := time.Parse(time.UnixDate, tm)
+	
 	return User{
-		ID: id.String(),
+		ID: uuid.New() ,
 		UserName: username,
 		Password: password,
 		Phone: phone,
