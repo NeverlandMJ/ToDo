@@ -6,9 +6,9 @@ package todopb;
 
 service TodoService {
     rpc CreateTodo(RequestTodo) returns (ResponseTodo);
-    rpc GetTodoByID(RequestTodoID) returns (ResponseTodo);
+    rpc GetTodoByID(RequestGetTodo) returns (ResponseTodo);
     rpc MarkAsDone(RequestMarkAsDone) returns (Empty);
-    rpc DeleteTodoByID(RequestTodoID) returns (Empty);
+    rpc DeleteTodoByID(RequestDeleteTodo) returns (Empty);
     rpc GetAllTodos(RequestUserID) returns (ResponseAllTodos);
     rpc UpdateTodosBody(RequestUpdateTodosBody) returns (Empty);
     rpc UpdateTodosDeadline(RequestUpdateTodosDeadline) returns (Empty);
@@ -19,6 +19,16 @@ service TodoService {
 message Empty {}
 
 message RequestMarkAsDone {
+    string user_id = 1;
+    string todo_id = 2;
+}
+
+message RequestDeleteTodo{
+    string user_id = 1;
+    string todo_id = 2;
+}
+
+message RequestGetTodo {
     string user_id = 1;
     string todo_id = 2;
 }
@@ -42,20 +52,18 @@ message ResponseAllTodos {
     repeated ResponseTodo responseTodos = 1;
 }
 
-message RequestTodoID {
-    string id = 1;
-}
-
 message RequestUserID {
     string id = 1;
 }
 
 message RequestUpdateTodosBody {
-    string id = 1;
-    string new_body = 2;
+    string todo_id = 1;
+    string user_id = 2;
+    string new_body = 3;
 }
 
 message RequestUpdateTodosDeadline {
-    string id = 1;
-    string new_deadline = 2;
+    string todo_id = 1;
+    string user_id = 2;
+    string new_deadline = 3;
 }

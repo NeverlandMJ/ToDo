@@ -68,14 +68,19 @@ func (g *gRPCServer) CreateTodo(ctx context.Context, req *todopb.RequestTodo) (*
 }
 
 // GetTodoByID gets a todo by given ID
-func (g *gRPCServer) GetTodoByID(ctx context.Context, req *todopb.RequestTodoID) (*todopb.ResponseTodo, error) {
-	id, err := uuid.Parse(req.GetId())
+func (g *gRPCServer) GetTodoByID(ctx context.Context, req *todopb.RequestGetTodo) (*todopb.ResponseTodo, error) {
+	userID, err := uuid.Parse(req.GetUserId())
 	if err != nil {
 		log.Println(err)
-		return nil, status.Error(codes.InvalidArgument, "ID is not uuid")
+		return nil, status.Error(codes.InvalidArgument, "userID is not uuid")
+	}
+	todoID, err := uuid.Parse(req.GetUserId())
+	if err != nil {
+		log.Println(err)
+		return nil, status.Error(codes.InvalidArgument, "todoID is not uuid")
 	}
 
-	td, err := g.svc.GetTodo(ctx, id)
+	td, err := g.svc.GetTodo(ctx, userID, todoID)
 	if err != nil {
 		log.Println(err)
 		if errors.Is(err, customerr.ERR_TODO_NOT_EXIST) {
@@ -123,13 +128,19 @@ func (g *gRPCServer) MarkAsDone(ctx context.Context, req *todopb.RequestMarkAsDo
 }
 
 // DeleteTodoByID deletes todo by the given ID
-func (g *gRPCServer) DeleteTodoByID(ctx context.Context, req *todopb.RequestTodoID) (*todopb.Empty, error)  {
-	id, err := uuid.Parse(req.GetId())
+func (g *gRPCServer) DeleteTodoByID(ctx context.Context, req *todopb.RequestDeleteTodo) (*todopb.Empty, error)  {
+	userID, err := uuid.Parse(req.GetUserId())
 	if err != nil {
 		log.Println(err)
-		return nil, status.Error(codes.InvalidArgument, "ID is not uuid")
+		return nil, status.Error(codes.InvalidArgument, "userID is not uuid")
 	}
-	err = g.svc.DeleteTodoByID(ctx, id)
+ 	todoID, err := uuid.Parse(req.GetTodoId())
+	if err != nil {
+		log.Println(err)
+		return nil, status.Error(codes.InvalidArgument, "todoID is not uuid")
+	}
+
+	err = g.svc.DeleteTodoByID(ctx, userID, todoID)
 	if err != nil {
 		log.Println(err)
 		if errors.Is(err, customerr.ERR_TODO_NOT_EXIST) {
@@ -173,13 +184,18 @@ func (g *gRPCServer) GetAllTodos(ctx context.Context, req *todopb.RequestUserID)
 
 // UpdateTodosBody updates todo's body by the ID 
 func (g *gRPCServer) UpdateTodosBody(ctx context.Context, req *todopb.RequestUpdateTodosBody) (*todopb.Empty, error)  {
-	id, err := uuid.Parse(req.GetId())
+	userID, err := uuid.Parse(req.GetUserId())
 	if err != nil {
 		log.Println(err)
-		return nil, status.Error(codes.InvalidArgument, "ID is not uuid")
+		return nil, status.Error(codes.InvalidArgument, "userID is not uuid")
+	}
+ 	todoID, err := uuid.Parse(req.GetTodoId())
+	if err != nil {
+		log.Println(err)
+		return nil, status.Error(codes.InvalidArgument, "todoID is not uuid")
 	}
 
-	err = g.svc.UpdateTodosBody(ctx, id, req.NewBody)
+	err = g.svc.UpdateTodosBody(ctx, userID, todoID, req.NewBody)
 	if err != nil {
 		log.Println(err)
 		if errors.Is(err, customerr.ERR_TODO_NOT_EXIST) {
@@ -194,11 +210,17 @@ func (g *gRPCServer) UpdateTodosBody(ctx context.Context, req *todopb.RequestUpd
 
 // UpdateTodosDeadline updates todo's deadline by the ID
 func (g *gRPCServer) UpdateTodosDeadline(ctx context.Context, req *todopb.RequestUpdateTodosDeadline) (*todopb.Empty, error) {
-	id, err := uuid.Parse(req.GetId())
+	userID, err := uuid.Parse(req.GetUserId())
 	if err != nil {
 		log.Println(err)
-		return nil, status.Error(codes.InvalidArgument, "ID is not uuid")
+		return nil, status.Error(codes.InvalidArgument, "userID is not uuid")
 	}
+ 	todoID, err := uuid.Parse(req.GetTodoId())
+	if err != nil {
+		log.Println(err)
+		return nil, status.Error(codes.InvalidArgument, "todoID is not uuid")
+	}
+
 
 	tm, err := time.Parse(time.UnixDate, req.NewDeadline)
 	if err != nil {
@@ -206,7 +228,7 @@ func (g *gRPCServer) UpdateTodosDeadline(ctx context.Context, req *todopb.Reques
 		return nil, status.Error(codes.InvalidArgument, "given time is not parsable")
 	}
 
-	err = g.svc.UpdateTodosDeadline(ctx, id, tm)	
+	err = g.svc.UpdateTodosDeadline(ctx, userID, todoID, tm)	
 	if err != nil {
 		log.Println(err)
 		if errors.Is(err, customerr.ERR_TODO_NOT_EXIST) {

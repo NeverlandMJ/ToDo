@@ -35,8 +35,8 @@ func (s Service) CreateTodo(ctx context.Context, td entity.Todo) (entity.Todo, e
 }
 
 // GetTodo ...
-func (s Service) GetTodo(ctx context.Context, id uuid.UUID) (entity.Todo, error) {
-	got, err := s.Repo.GetTodo(ctx, id)
+func (s Service) GetTodo(ctx context.Context, userID uuid.UUID, todoID uuid.UUID) (entity.Todo, error) {
+	got, err := s.Repo.GetTodo(ctx, userID, todoID)
 	if err != nil {
 		return entity.Todo{}, err
 	}
@@ -54,8 +54,8 @@ func (s Service) MarkAsDone(ctx context.Context, userID uuid.UUID, todoID uuid.U
 }
 
 // DeleteTodoByID ...
-func (s Service) DeleteTodoByID(ctx context.Context, id uuid.UUID) error  {
-	err := s.Repo.DeleteTodo(ctx, id)
+func (s Service) DeleteTodoByID(ctx context.Context, userID, todoID uuid.UUID) error  {
+	err := s.Repo.DeleteTodo(ctx, userID, todoID)
 	if err != nil {
 		return  err
 	}
@@ -74,8 +74,8 @@ func (s Service) GetAllTodos(ctx context.Context, userID uuid.UUID) ([]entity.To
 }
 
 // UpdateTodosBody ...
-func (s Service) UpdateTodosBody(ctx context.Context, id uuid.UUID, newBody string) error {
-	err := s.Repo.UpdateTodosBody(ctx, id, newBody)
+func (s Service) UpdateTodosBody(ctx context.Context, userID, todoID uuid.UUID, newBody string) error {
+	err := s.Repo.UpdateTodosBody(ctx, userID, todoID, newBody)
 	if err != nil {
 		return err
 	}
@@ -84,8 +84,8 @@ func (s Service) UpdateTodosBody(ctx context.Context, id uuid.UUID, newBody stri
 }
 
 // UpdateTodosDeadline ...
-func (s Service) UpdateTodosDeadline(ctx context.Context, id uuid.UUID, newDeadline time.Time) error  {
-	err := s.Repo.UpdateTodosDeadline(ctx, id, newDeadline)
+func (s Service) UpdateTodosDeadline(ctx context.Context, userID, todoID uuid.UUID, newDeadline time.Time) error  {
+	err := s.Repo.UpdateTodosDeadline(ctx, userID, todoID, newDeadline)
 	if err != nil {
 		return err
 	}

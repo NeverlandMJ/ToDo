@@ -47,15 +47,15 @@ func (s Server) CreateTodo(ctx context.Context, td entity.Todo) error {
 }
 
 // GetTodo fetches todo by id. If there is not todo by the given ID, it returns customerr.ERR_TODO_NOT_EXIST
-func (s Server) GetTodo(ctx context.Context, id uuid.UUID) (entity.Todo, error) {
+func (s Server) GetTodo(ctx context.Context, userID uuid.UUID, todoID uuid.UUID) (entity.Todo, error) {
 	var td entity.Todo
-	exist := s.CheckIfExists(ctx, id)
+	exist := s.CheckIfExists(ctx, todoID)
 	if !exist {
 		return td, customerr.ERR_TODO_NOT_EXIST
 	}
 	err := s.db.QueryRowContext(ctx, `
-		SELECT * FROM todos WHERE id=$1
-	`, id).Scan(&td.ID, &td.UserID, &td.Body, &td.CreatedAt, &td.Deadline, &td.IsDone)
+		SELECT * FROM todos WHERE id=$1 AND user_id=$2
+	`, todoID, userID).Scan(&td.ID, &td.UserID, &td.Body, &td.CreatedAt, &td.Deadline, &td.IsDone)
 
 	if err != nil {
 		return td, err
@@ -85,12 +85,12 @@ func (s Server) MarkAsDone(ctx context.Context, userID uuid.UUID, todoID uuid.UU
 
 // DeleteTodo deletes todo from database by the given ID.
 // If there is not todo by the given ID, it returns customerr.ERR_TODO_NOT_EXIST
-func (s Server) DeleteTodo(ctx context.Context, id uuid.UUID) error {
-	exists := s.CheckIfExists(ctx, id)
+func (s Server) DeleteTodo(ctx context.Context, userID uuid.UUID, todoID uuid.UUID) error {
+	exists := s.CheckIfExists(ctx, todoID)
 	if !exists {
 		return customerr.ERR_TODO_NOT_EXIST
 	}
-	_, err := s.db.ExecContext(ctx, `DELETE FROM todos WHERE id=$1`, id)
+	_, err := s.db.ExecContext(ctx, `DELETE FROM todos WHERE id=$1 AND user_id = $2`, todoID, userID)
 	if err != nil {
 		return err
 	}
@@ -126,13 +126,13 @@ func (s Server) GetAllTodos(ctx context.Context, userID uuid.UUID) ([]entity.Tod
 
 // UpdateTodosBody updates todo's body.
 // If there is not todo by the given ID, it returns customerr.ERR_TODO_NOT_EXIST
-func (s Server) UpdateTodosBody(ctx context.Context, id uuid.UUID, newBody string) error {
-	exists := s.CheckIfExists(ctx, id)
+func (s Server) UpdateTodosBody(ctx context.Context, userID uuid.UUID, todoID uuid.UUID, newBody string) error {
+	exists := s.CheckIfExists(ctx, todoID)
 	if !exists {
 		return customerr.ERR_TODO_NOT_EXIST
 	}
 
-	_, err := s.db.ExecContext(ctx, `UPDATE todos SET body=$2 WHERE id=$1`, id, newBody)
+	_, err := s.db.ExecContext(ctx, `UPDATE todos SET body=$1 WHERE id=$2 AND user_id=$3`, newBody, todoID, userID)
 	if err != nil {
 		return err
 	}
@@ -142,13 +142,13 @@ func (s Server) UpdateTodosBody(ctx context.Context, id uuid.UUID, newBody strin
 
 // UpdateTodosDeadline updates todo's deadline.
 // If there is not todo by the given ID, it returns customerr.ERR_TODO_NOT_EXIST
-func (s Server) UpdateTodosDeadline(ctx context.Context, id uuid.UUID, deadline time.Time) error {
-	exists := s.CheckIfExists(ctx, id)
+func (s Server) UpdateTodosDeadline(ctx context.Context, userID uuid.UUID, todoID uuid.UUID, deadline time.Time) error {
+	exists := s.CheckIfExists(ctx, todoID)
 	if !exists {
 		return customerr.ERR_TODO_NOT_EXIST
 	}
 
-	_, err := s.db.ExecContext(ctx, `UPDATE todos SET deadline=$1 WHERE id=$2`, deadline, id)
+	_, err := s.db.ExecContext(ctx, `UPDATE todos SET deadline=$1 WHERE id=$2 AND user_id=$3`, deadline, todoID, userID)
 	if err != nil {
 		return err
 	}

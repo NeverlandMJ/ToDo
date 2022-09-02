@@ -49,7 +49,7 @@ func TestServer_GetTodo(t *testing.T) {
 		err = s.CreateTodo(context.Background(), todo)
 		require.NoError(t, err)
 
-		td, err := s.GetTodo(context.Background(), todo.ID)
+		td, err := s.GetTodo(context.Background(), todo.UserID, todo.ID)
 		td.CreatedAt = todo.CreatedAt
 
 		require.NoError(t, err)
@@ -61,7 +61,7 @@ func TestServer_GetTodo(t *testing.T) {
 		err := insertTestUser(s)
 		require.NoError(t, err)
 
-		td, err := s.GetTodo(context.Background(), uuid.New())
+		td, err := s.GetTodo(context.Background(), uuid.New(), uuid.New())
 
 		require.ErrorIs(t, err, customerr.ERR_TODO_NOT_EXIST)
 		require.Equal(t, entity.Todo{}, td)
@@ -86,7 +86,7 @@ func TestServer_MarkAsDone(t *testing.T) {
 		err = s.MarkAsDone(context.Background(), todo.UserID, todo.ID)
 		require.NoError(t, err)
 
-		td, err := s.GetTodo(context.Background(), todo.ID)
+		td, err := s.GetTodo(context.Background(), todo.UserID, todo.ID)
 
 		require.NoError(t, err)
 		require.Equal(t, true, td.IsDone)
@@ -118,10 +118,10 @@ func TestServer_DeleteTodo(t *testing.T) {
 		err = s.CreateTodo(context.Background(), todo)
 		require.NoError(t, err)
 
-		err = s.DeleteTodo(context.Background(), todo.ID)
+		err = s.DeleteTodo(context.Background(), todo.UserID, todo.ID)
 		require.NoError(t, err)
 
-		td, err := s.GetTodo(context.Background(), todo.ID)
+		td, err := s.GetTodo(context.Background(), todo.UserID, todo.ID)
 		
 		require.ErrorIs(t, err, customerr.ERR_TODO_NOT_EXIST)
 		require.EqualValues(t, entity.Todo{}, td)
@@ -132,7 +132,7 @@ func TestServer_DeleteTodo(t *testing.T) {
 		err := insertTestUser(s)
 		require.NoError(t, err)
 
-		err = s.DeleteTodo(context.Background(), uuid.New())
+		err = s.DeleteTodo(context.Background(), uuid.New(), uuid.New())
 		require.ErrorIs(t, err, customerr.ERR_TODO_NOT_EXIST)
 
 	})
@@ -184,10 +184,10 @@ func TestServer_UpdateTodosBody(t *testing.T) {
 		err = s.CreateTodo(context.Background(), todo)
 		require.NoError(t, err)
 
-		err = s.UpdateTodosBody(context.Background(), todo.ID, "make a cake")
+		err = s.UpdateTodosBody(context.Background(), todo.UserID, todo.ID, "make a cake")
 		require.NoError(t, err)
 
-		got, err := s.GetTodo(context.Background(), todo.ID)
+		got, err := s.GetTodo(context.Background(), todo.UserID, todo.ID)
 		todo.Body = "make a cake"
 
 		require.NoError(t, err)
@@ -199,7 +199,7 @@ func TestServer_UpdateTodosBody(t *testing.T) {
 		err := insertTestUser(s)
 		require.NoError(t, err)
 
-		err = s.UpdateTodosBody(context.Background(), uuid.New(), "make a cake")
+		err = s.UpdateTodosBody(context.Background(), uuid.New(), uuid.New(), "make a cake")
 		require.ErrorIs(t, err, customerr.ERR_TODO_NOT_EXIST)
 	})
 }
@@ -217,10 +217,10 @@ func TestServer_UpdateTodosDeadline(t *testing.T) {
 		err = s.CreateTodo(context.Background(), todo)
 		require.NoError(t, err)
 
-		err = s.UpdateTodosDeadline(context.Background(), todo.ID, newDeadline)
+		err = s.UpdateTodosDeadline(context.Background(), todo.UserID, todo.ID, newDeadline)
 		require.NoError(t, err)
 
-		got, err := s.GetTodo(context.Background(), todo.ID)
+		got, err := s.GetTodo(context.Background(), todo.UserID, todo.ID)
 		require.NoError(t, err)
 
 		require.EqualValues(t, newDeadline, got.Deadline)
@@ -230,7 +230,7 @@ func TestServer_UpdateTodosDeadline(t *testing.T) {
 		err := insertTestUser(s)
 		require.NoError(t, err)
 
-		err = s.UpdateTodosDeadline(context.Background(), uuid.New(), newDeadline)
+		err = s.UpdateTodosDeadline(context.Background(), uuid.New(), uuid.New(),newDeadline)
 		require.ErrorIs(t, err, customerr.ERR_TODO_NOT_EXIST)
 	})
 }

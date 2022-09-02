@@ -80,17 +80,17 @@ func (mr *MockRepositoryMockRecorder) DeletePassedDeadline(arg0, arg1 interface{
 }
 
 // DeleteTodo mocks base method.
-func (m *MockRepository) DeleteTodo(arg0 context.Context, arg1 uuid.UUID) error {
+func (m *MockRepository) DeleteTodo(arg0 context.Context, arg1, arg2 uuid.UUID) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DeleteTodo", arg0, arg1)
+	ret := m.ctrl.Call(m, "DeleteTodo", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // DeleteTodo indicates an expected call of DeleteTodo.
-func (mr *MockRepositoryMockRecorder) DeleteTodo(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) DeleteTodo(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteTodo", reflect.TypeOf((*MockRepository)(nil).DeleteTodo), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteTodo", reflect.TypeOf((*MockRepository)(nil).DeleteTodo), arg0, arg1, arg2)
 }
 
 // GetAllTodos mocks base method.
@@ -109,18 +109,18 @@ func (mr *MockRepositoryMockRecorder) GetAllTodos(arg0, arg1 interface{}) *gomoc
 }
 
 // GetTodo mocks base method.
-func (m *MockRepository) GetTodo(arg0 context.Context, arg1 uuid.UUID) (entity.Todo, error) {
+func (m *MockRepository) GetTodo(arg0 context.Context, arg1, arg2 uuid.UUID) (entity.Todo, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetTodo", arg0, arg1)
+	ret := m.ctrl.Call(m, "GetTodo", arg0, arg1, arg2)
 	ret0, _ := ret[0].(entity.Todo)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetTodo indicates an expected call of GetTodo.
-func (mr *MockRepositoryMockRecorder) GetTodo(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) GetTodo(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTodo", reflect.TypeOf((*MockRepository)(nil).GetTodo), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTodo", reflect.TypeOf((*MockRepository)(nil).GetTodo), arg0, arg1, arg2)
 }
 
 // MarkAsDone mocks base method.
@@ -138,29 +138,29 @@ func (mr *MockRepositoryMockRecorder) MarkAsDone(arg0, arg1, arg2 interface{}) *
 }
 
 // UpdateTodosBody mocks base method.
-func (m *MockRepository) UpdateTodosBody(arg0 context.Context, arg1 uuid.UUID, arg2 string) error {
+func (m *MockRepository) UpdateTodosBody(arg0 context.Context, arg1, arg2 uuid.UUID, arg3 string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateTodosBody", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "UpdateTodosBody", arg0, arg1, arg2, arg3)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // UpdateTodosBody indicates an expected call of UpdateTodosBody.
-func (mr *MockRepositoryMockRecorder) UpdateTodosBody(arg0, arg1, arg2 interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) UpdateTodosBody(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateTodosBody", reflect.TypeOf((*MockRepository)(nil).UpdateTodosBody), arg0, arg1, arg2)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateTodosBody", reflect.TypeOf((*MockRepository)(nil).UpdateTodosBody), arg0, arg1, arg2, arg3)
 }
 
 // UpdateTodosDeadline mocks base method.
-func (m *MockRepository) UpdateTodosDeadline(arg0 context.Context, arg1 uuid.UUID, arg2 time.Time) error {
+func (m *MockRepository) UpdateTodosDeadline(arg0 context.Context, arg1, arg2 uuid.UUID, arg3 time.Time) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateTodosDeadline", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "UpdateTodosDeadline", arg0, arg1, arg2, arg3)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // UpdateTodosDeadline indicates an expected call of UpdateTodosDeadline.
-func (mr *MockRepositoryMockRecorder) UpdateTodosDeadline(arg0, arg1, arg2 interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) UpdateTodosDeadline(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateTodosDeadline", reflect.TypeOf((*MockRepository)(nil).UpdateTodosDeadline), arg0, arg1, arg2)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateTodosDeadline", reflect.TypeOf((*MockRepository)(nil).UpdateTodosDeadline), arg0, arg1, arg2, arg3)
 }

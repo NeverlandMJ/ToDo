@@ -58,10 +58,10 @@ func TestService_GetTodo(t *testing.T) {
 		want := entity.NewTodo(testDeadline, testBody, testUserID)
 		
 		repo := newRepos(t)
-		repo.EXPECT().GetTodo(gomock.Any(), gomock.Any()).Return(want, nil)
+		repo.EXPECT().GetTodo(gomock.Any(), gomock.Any(), gomock.Any()).Return(want, nil)
 
 		s := NewService(repo)
-		got, err := s.GetTodo(context.Background(), uuid.New())
+		got, err := s.GetTodo(context.Background(), uuid.New(), uuid.New())
 		
 		require.NoError(t, err)
 		require.EqualValues(t, want, got)
@@ -69,10 +69,10 @@ func TestService_GetTodo(t *testing.T) {
 
 	t.Run("should return error", func(t *testing.T) {
 		repo := newRepos(t)
-		repo.EXPECT().GetTodo(gomock.Any(), gomock.Any()).Return(entity.Todo{}, fmt.Errorf("error"))
+		repo.EXPECT().GetTodo(gomock.Any(), gomock.Any(), gomock.Any()).Return(entity.Todo{}, fmt.Errorf("error"))
 
 		s := NewService(repo)
-		got, err := s.GetTodo(context.Background(), uuid.New())
+		got, err := s.GetTodo(context.Background(), uuid.New(), uuid.New())
 		
 		require.Error(t, err)
 		require.EqualValues(t, entity.Todo{}, got)
@@ -110,27 +110,27 @@ func TestService_MarkAsDone(t *testing.T) {
 func TestService_DeleteTodoByID(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		repos := newRepos(t)
-		repos.EXPECT().DeleteTodo(gomock.Any(), gomock.Any()).Return(nil)
+		repos.EXPECT().DeleteTodo(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
 
 		s := NewService(repos)
-		err := s.DeleteTodoByID(context.Background(), uuid.New())
+		err := s.DeleteTodoByID(context.Background(), uuid.New(), uuid.New())
 		require.NoError(t, err)
 	})
 
 	t.Run("returns error", func(t *testing.T) {
 		repos := newRepos(t)
-		repos.EXPECT().DeleteTodo(gomock.Any(), gomock.Any()).Return(fmt.Errorf("error"))
+		repos.EXPECT().DeleteTodo(gomock.Any(), gomock.Any(), gomock.Any()).Return(fmt.Errorf("error"))
 
 		s := NewService(repos)
-		err := s.DeleteTodoByID(context.Background(), uuid.New())
+		err := s.DeleteTodoByID(context.Background(), uuid.New(), uuid.New())
 		require.Error(t, err)
 	})
 	t.Run("todo doesn't eixst", func(t *testing.T) {
 		repos := newRepos(t)
-		repos.EXPECT().DeleteTodo(gomock.Any(), gomock.Any()).Return(customerr.ERR_TODO_NOT_EXIST)
+		repos.EXPECT().DeleteTodo(gomock.Any(), gomock.Any(), gomock.Any()).Return(customerr.ERR_TODO_NOT_EXIST)
 
 		s := NewService(repos)
-		err := s.DeleteTodoByID(context.Background(), uuid.New())
+		err := s.DeleteTodoByID(context.Background(), uuid.New(), uuid.New(),)
 		require.ErrorIs(t, err, customerr.ERR_TODO_NOT_EXIST)
 	})
 }
@@ -171,26 +171,26 @@ func TestService_GetAllTodos(t *testing.T) {
 func TestService_UpdateTodosBody(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		repo := newRepos(t)
-		repo.EXPECT().UpdateTodosBody(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
+		repo.EXPECT().UpdateTodosBody(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
 		s := NewService(repo)
 
-		err := s.UpdateTodosBody(context.Background(), uuid.New(), "body")
+		err := s.UpdateTodosBody(context.Background(), uuid.New(), uuid.New(), "body")
 		require.NoError(t, err)
 	})
 	t.Run("todo doesn't exist", func(t *testing.T) {
 		repo := newRepos(t)
-		repo.EXPECT().UpdateTodosBody(gomock.Any(), gomock.Any(), gomock.Any()).Return(customerr.ERR_TODO_NOT_EXIST)
+		repo.EXPECT().UpdateTodosBody(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(customerr.ERR_TODO_NOT_EXIST)
 		s := NewService(repo)
 
-		err := s.UpdateTodosBody(context.Background(), uuid.New(), "body")
+		err := s.UpdateTodosBody(context.Background(), uuid.New(), uuid.New(), "body")
 		require.ErrorIs(t, err, customerr.ERR_TODO_NOT_EXIST)
 	})
 	t.Run("internal error", func(t *testing.T) {
 		repo := newRepos(t)
-		repo.EXPECT().UpdateTodosBody(gomock.Any(), gomock.Any(), gomock.Any()).Return(fmt.Errorf("error"))
+		repo.EXPECT().UpdateTodosBody(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(fmt.Errorf("error"))
 		s := NewService(repo)
 
-		err := s.UpdateTodosBody(context.Background(), uuid.New(), "body")
+		err := s.UpdateTodosBody(context.Background(), uuid.New(), uuid.New(), "body")
 		require.Error(t, err)
 	})
 }
@@ -198,26 +198,26 @@ func TestService_UpdateTodosBody(t *testing.T) {
 func TestService_UpdateTodosDeadline(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		repo := newRepos(t)
-		repo.EXPECT().UpdateTodosDeadline(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
+		repo.EXPECT().UpdateTodosDeadline(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
 		s := NewService(repo)
 
-		err := s.UpdateTodosDeadline(context.Background(), uuid.New(), testDeadline)
+		err := s.UpdateTodosDeadline(context.Background(), uuid.New(), uuid.New(), testDeadline)
 		require.NoError(t, err)
 	})
 	t.Run("todo doesn't exist", func(t *testing.T) {
 		repo := newRepos(t)
-		repo.EXPECT().UpdateTodosDeadline(gomock.Any(), gomock.Any(), gomock.Any()).Return(customerr.ERR_TODO_NOT_EXIST)
+		repo.EXPECT().UpdateTodosDeadline(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(customerr.ERR_TODO_NOT_EXIST)
 		s := NewService(repo)
 
-		err := s.UpdateTodosDeadline(context.Background(), uuid.New(), testDeadline)
+		err := s.UpdateTodosDeadline(context.Background(), uuid.New(), uuid.New(), testDeadline)
 		require.ErrorIs(t, err, customerr.ERR_TODO_NOT_EXIST)
 	})
 	t.Run("internal error", func(t *testing.T) {
 		repo := newRepos(t)
-		repo.EXPECT().UpdateTodosDeadline(gomock.Any(), gomock.Any(), gomock.Any()).Return(fmt.Errorf("error"))
+		repo.EXPECT().UpdateTodosDeadline(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(fmt.Errorf("error"))
 		s := NewService(repo)
 
-		err := s.UpdateTodosDeadline(context.Background(), uuid.New(), testDeadline)
+		err := s.UpdateTodosDeadline(context.Background(), uuid.New(), uuid.New(), testDeadline)
 		require.Error(t, err)
 	})
 }
