@@ -18,7 +18,7 @@ func Authentication(c *gin.Context) {
 	if err != nil {
 		if err == http.ErrNoCookie {
 			r := message{
-				Message: "user is not regostrated",
+				Message: "user is not signed in",
 				Success: false,
 			}
 			c.JSON(http.StatusUnauthorized, r)
@@ -66,15 +66,7 @@ func Authentication(c *gin.Context) {
 		return
 	}
 
-	c.SetCookie(
-		"userID",
-		claims.ID,
-		60,
-		"/",
-		"localhost",
-		false,
-		true,
-	)
+	c.Set("claims", claims)
 	
 	c.Next()
 }

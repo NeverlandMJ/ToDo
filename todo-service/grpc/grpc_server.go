@@ -74,7 +74,7 @@ func (g *gRPCServer) GetTodoByID(ctx context.Context, req *todopb.RequestGetTodo
 		log.Println(err)
 		return nil, status.Error(codes.InvalidArgument, "userID is not uuid")
 	}
-	todoID, err := uuid.Parse(req.GetUserId())
+	todoID, err := uuid.Parse(req.GetTodoId())
 	if err != nil {
 		log.Println(err)
 		return nil, status.Error(codes.InvalidArgument, "todoID is not uuid")

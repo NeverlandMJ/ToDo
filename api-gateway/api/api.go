@@ -17,11 +17,13 @@ func NewRouter(h Handler) *gin.Engine{
 	auth.POST("/v1/userpb/send-code", h.SendCode)
 	auth.POST("/v1/userpb/register", h.SignUp)
 	auth.POST("/v1/userpb/sign-in", h.SignIn)
-	auth.DELETE("/logout", h.LogOut)
+	auth.DELETE("/logout",)
 
 	authored := router.Group("/api")
 	authored.Use(middlewares.Authentication)
 	authored.POST("/v1/todopb/create", h.CreateTodo)
+	authored.GET("/v1/todopb/get/:todo-id", h.GetTodoByID)
+	authored.PUT("/v1/todopb/done/:todo-id", h.MarkAsDone)
 
 
 	return router

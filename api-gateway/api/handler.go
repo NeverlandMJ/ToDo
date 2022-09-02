@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"time"
 
+	"github.com/NeverlandMJ/ToDo/api-gateway/pkg/auth"
 	"github.com/NeverlandMJ/ToDo/api-gateway/pkg/entity"
 	customErr "github.com/NeverlandMJ/ToDo/api-gateway/pkg/error"
 	"github.com/NeverlandMJ/ToDo/api-gateway/service"
@@ -27,7 +27,7 @@ func NewHandler(prov service.Provider) Handler {
 }
 
 type message struct {
-	Message string `json:"message"`
+	Message interface{} `json:"message"`
 	Success bool   `json:"success"`
 }
 
@@ -128,41 +128,25 @@ func (h Handler) SignIn(c *gin.Context) {
 	c.JSON(http.StatusOK, r)
 }
 
-func (h Handler) LogOut(c *gin.Context) {
-	cook, err := c.Request.Cookie("userID")
-	if err != nil {
-		r := message{
-			Message: "cookie is not set",
-			Success: false,
-		}
-		c.JSON(http.StatusUnauthorized, r)
-		return
-	}
-
-	cook.Name = "deleted"
-	cook.Value = "unuse"
-	cook.Expires = time.Unix(1414414788, 1414414788000)
-
-	r := message{
-		Message: "loged out",
-		Success: true,
-	}
-	c.JSON(http.StatusOK, r)
-}
 
 func (h Handler) CreateTodo(c *gin.Context) {
-	cookie, err := c.Request.Cookie("userID")
-	if err != nil {
+	v, ok := c.Get("claims")
+	if !ok {
+		return
+	}
+	claims, ok := v.(*auth.Claims)
+	// fmt.Println(claims)
+	if !ok {
 		r := message{
-			Message: "cookie is not set",
+			Message: "looks like cookie isn't set",
 			Success: false,
 		}
 		c.JSON(http.StatusUnauthorized, r)
 		return
 	}
 
-	var rt entity.ReqCreateTodo
-	if err := c.BindJSON(&rt); err != nil {
+	var td entity.ReqCreateTodo
+	if err := c.BindJSON(&td); err != nil {
 		r := message{
 			Message: "invalid json",
 			Success: false,
@@ -172,18 +156,94 @@ func (h Handler) CreateTodo(c *gin.Context) {
 		return
 	}
 
-	if err := rt.CheckReqCreateTodo(); err != nil {
+	if err := td.CheckReqCreateTodo(); err != nil {
 		h.HandleErr(err, c)
 		return
 	}
 
-	td, err := h.provider.TodoServiceProvider.CreateTodo(c.Request.Context(), rt, cookie.Value)
+	new, err := h.provider.TodoServiceProvider.CreateTodo(c.Request.Context(), td, claims.ID)
 	if err != nil {
 		h.HandleErr(err, c)
 		return
 	}
 
-	c.JSON(http.StatusCreated, td)
+	c.JSON(http.StatusCreated, new)
+}
+
+func (h Handler) GetTodoByID(c *gin.Context) {
+	v, ok := c.Get("claims")
+	if !ok {
+		return
+	}
+	claims, ok := v.(*auth.Claims)
+	// fmt.Println(claims)
+	if !ok {
+		r := message{
+			Message: "looks like cookie isn't set",
+			Success: false,
+		}
+		c.JSON(http.StatusUnauthorized, r)
+		return
+	}
+
+	todoID, ok := c.Params.Get("todo-id")
+	if !ok {
+		r := message{
+			Message: "invalid params",
+			Success: false,
+		}
+		c.JSON(http.StatusBadRequest, r)
+	}
+
+	resp, err := h.provider.TodoServiceProvider.GetTodoByID(context.Background(), claims.ID, todoID)
+	if err != nil {
+		h.HandleErr(err, c)
+		return
+	}
+
+	r := message{
+		Message: resp,
+		Success: true,
+	}
+	c.JSON(http.StatusOK, r)
+}
+
+func (h Handler) MarkAsDone(c *gin.Context) {
+v, ok := c.Get("claims")
+	if !ok {
+		return
+	}
+	claims, ok := v.(*auth.Claims)
+	// fmt.Println(claims)
+	if !ok {
+		r := message{
+			Message: "looks like cookie isn't set",
+			Success: false,
+		}
+		c.JSON(http.StatusUnauthorized, r)
+		return
+	}
+
+	todoID, ok := c.Params.Get("todo-id")
+	if !ok {
+		r := message{
+			Message: "invalid params",
+			Success: false,
+		}
+		c.JSON(http.StatusBadRequest, r)
+	}
+
+	err := h.provider.TodoServiceProvider.MarkAsDone(context.Background(), claims.ID, todoID)
+	if err != nil {
+		h.HandleErr(err, c)
+		return
+	}
+
+	r := message{
+		Message: "successfully updated",
+		Success: true,
+	}
+	c.JSON(http.StatusOK, r)
 }
 
 func (h Handler) HandleErr(err error, c *gin.Context) {
@@ -220,6 +280,12 @@ func (h Handler) HandleErr(err error, c *gin.Context) {
 				Success: false,
 			}
 			c.JSON(http.StatusBadRequest, r)
+		case codes.PermissionDenied:
+			r := message{
+				Message: sts.Message(),
+				Success: false,
+			}
+			c.JSON(http.StatusForbidden, r)
 		default:
 			r := message{
 				Message: sts.Message(),

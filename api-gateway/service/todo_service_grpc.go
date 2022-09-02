@@ -55,3 +55,35 @@ func (c todoServiceGRPCClient) CreateTodo(ctx context.Context, td entity.ReqCrea
 		IsDone: resp.IsDone,
 	}, nil
 }
+
+func (c todoServiceGRPCClient) MarkAsDone(ctx context.Context, userID, todoID string) error {
+	_, err := c.client.MarkAsDone(ctx, &todopb.RequestMarkAsDone{
+		UserId: userID,
+		TodoId: todoID,
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (c todoServiceGRPCClient) GetTodoByID(ctx context.Context, userID, todoID string) (entity.RespTodo, error) {
+	resp, err := c.client.GetTodoByID(ctx, &todopb.RequestGetTodo{
+		UserId: userID,
+		TodoId: todoID,
+	})
+
+	if err != nil {
+		return entity.RespTodo{} ,err
+	}
+
+	return entity.RespTodo{
+		ID: resp.Id,
+		UserID: resp.UserID,
+		Body: resp.Body,
+		CreatedAt: resp.CreatedAt,
+		Deadline: resp.Deadline,
+		IsDone: resp.IsDone,
+	}, nil
+}

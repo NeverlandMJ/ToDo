@@ -8,6 +8,28 @@ service UserService {
     rpc SendCode(RequestPhone) returns (RequestPhone) {}
     rpc RegisterUser(Code) returns (ResponseUser) {}
     rpc SignIn(SignInUer) returns (User) {}
+    rpc ChangePassword(RequestChangePassword) returns (Empty) {}
+    rpc ChangeUserName(RequestUserName) returns (Empty) {}
+    rpc DeleteAccount(RequestDeleteAccount) returns (Empty) {}
+}
+
+message Empty {}
+
+message RequestDeleteAccount {
+    string userID = 1;
+    string password = 2;
+    string user_name = 3;
+}
+
+message RequestChangePassword {
+    string userID = 1;
+    string old_password = 2;
+    string new_password = 3;
+}
+
+message RequestUserName {
+    string userID = 1;
+    string user_name = 2;
 }
 
 message RequestPhone {

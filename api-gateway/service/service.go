@@ -19,6 +19,8 @@ type UserServiceProvider interface {
 
 type TodoServiceProvider interface {
 	CreateTodo(ctx context.Context, td entity.ReqCreateTodo, userID string) (entity.RespTodo, error)
+	GetTodoByID(ctx context.Context, userID, todoID string) (entity.RespTodo, error)
+	MarkAsDone(ctx context.Context, userID, todoID string) error
 }
 
 func NewProvider(userServiceURL, todoServiceURL string) Provider {
