@@ -6,8 +6,8 @@ import (
 	"testing"
 
 	"github.com/NeverlandMJ/ToDo/user-service/config"
-	"github.com/NeverlandMJ/ToDo/user-service/pkg/entity"
 	"github.com/NeverlandMJ/ToDo/user-service/pkg/customErr"
+	"github.com/NeverlandMJ/ToDo/user-service/pkg/entity"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -85,7 +85,7 @@ func TestServer_ChangePassword(t *testing.T) {
 		err := s.CreateUser(context.Background(), user)
 		require.NoError(t, err)
 
-		err = s.ChangePassword(context.Background(), user.ID, user.Password,"456")
+		err = s.ChangePassword(context.Background(), user.ID, user.Password, "456")
 		require.NoError(t, err)
 
 		_, err = s.GetUser(context.Background(), user.UserName, "456")
@@ -99,7 +99,7 @@ func TestServer_ChangePassword(t *testing.T) {
 		err := s.CreateUser(context.Background(), user)
 		require.NoError(t, err)
 
-		err = s.ChangePassword(context.Background(), user.ID, "old","456")
+		err = s.ChangePassword(context.Background(), user.ID, "old", "456")
 		require.ErrorIs(t, err, customErr.ERR_INCORRECT_PASSWORD)
 
 		_, err = s.GetUser(context.Background(), user.UserName, "456")

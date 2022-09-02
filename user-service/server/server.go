@@ -4,15 +4,17 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"time"
 
 	"github.com/NeverlandMJ/ToDo/user-service/config"
 	"github.com/NeverlandMJ/ToDo/user-service/database"
-	"github.com/NeverlandMJ/ToDo/user-service/pkg/entity"
 	"github.com/NeverlandMJ/ToDo/user-service/pkg/customErr"
+	"github.com/NeverlandMJ/ToDo/user-service/pkg/entity"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
-// Server holds databse 
+
+// Server holds databse
 type Server struct {
 	db *sql.DB
 }
@@ -108,7 +110,7 @@ func (s Server) ChangePassword(ctx context.Context, userID uuid.UUID, oldPW, new
 	if !exist {
 		return customErr.ERR_USER_NOT_EXIST
 	}
-	
+
 	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
 		return err
@@ -116,7 +118,7 @@ func (s Server) ChangePassword(ctx context.Context, userID uuid.UUID, oldPW, new
 	defer tx.Commit()
 
 	var actual string
-	err = tx.QueryRowContext(ctx, `SELECT password FROM users WHERE id=$1`, userID ).Scan(&actual)
+	err = tx.QueryRowContext(ctx, `SELECT password FROM users WHERE id=$1`, userID).Scan(&actual)
 	if err != nil {
 		tx.Rollback()
 		return err
@@ -126,19 +128,22 @@ func (s Server) ChangePassword(ctx context.Context, userID uuid.UUID, oldPW, new
 	if err != nil {
 		tx.Rollback()
 		return customErr.ERR_INCORRECT_PASSWORD
-	} 
+	}
 
 	newHashed, err := bcrypt.GenerateFromPassword([]byte(newPW), bcrypt.MinCost)
 	if err != nil {
 		return err
 	}
 
-	_, err = tx.ExecContext(ctx, `UPDATE users SET password=$1 WHERE id=$2`, newHashed, userID)
+	tm := time.Now().UTC().Format(time.UnixDate)
+	updated, _ := time.Parse(time.UnixDate, tm)
+
+	_, err = tx.ExecContext(ctx, `UPDATE users SET password=$1, updated_at=$2 WHERE id=$3`, newHashed, updated, userID)
 	if err != nil {
 		tx.Rollback()
 		return err
 	}
-	
+
 	return nil
 }
 
@@ -151,7 +156,10 @@ func (s Server) ChangeUserName(ctx context.Context, userID uuid.UUID, newUN stri
 		return customErr.ERR_USER_NOT_EXIST
 	}
 
-	_, err := s.db.ExecContext(ctx, `UPDATE users SET user_name=$1 WHERE id=$2`, newUN, userID)
+	tm := time.Now().UTC().Format(time.UnixDate)
+	updated, _ := time.Parse(time.UnixDate, tm)
+	
+	_, err := s.db.ExecContext(ctx, `UPDATE users SET user_name=$1, updated_at=$2 WHERE id=$3`, newUN, updated, userID)
 	if err != nil {
 		return customErr.ERR_USER_EXIST
 	}
@@ -161,8 +169,8 @@ func (s Server) ChangeUserName(ctx context.Context, userID uuid.UUID, newUN stri
 
 // DeleteAccount deletes user's account by userID.
 // For authentication purposes password and user_name are asked
-func (s Server) DeleteAccount(ctx context.Context, userID uuid.UUID, pw, un string) error  {
-	
+func (s Server) DeleteAccount(ctx context.Context, userID uuid.UUID, pw, un string) error {
+
 	_, err := s.db.ExecContext(ctx, `DELETE FROM users WHERE id=$1 AND user_name = $2`, userID, un)
 	if err != nil {
 		return err
