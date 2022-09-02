@@ -6,6 +6,7 @@ import (
 	_ "github.com/joho/godotenv/autoload"
 )
 
+// Config is used to get cofigurations of Postgres
 type Config struct {
 	Host             string
 	Port             string
@@ -16,6 +17,7 @@ type Config struct {
 	PostgresDB       string
 }
 
+// Load loads configurations values from os
 func Load() (Config, error) {
 	return Config{
 		Host:             os.Getenv("HOST"),

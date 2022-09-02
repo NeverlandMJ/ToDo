@@ -13,10 +13,13 @@ import (
 	"github.com/google/uuid"
 )
 
+// Server holds databse 
 type Server struct {
 	db *sql.DB
 }
 
+// NewServer returns a new Server with working database attached to it.
+// If an error occuras while connecting to database, it returns an error
 func NewServer(cnfg config.Config, path string) (*Server, error) {
 	conn, err := database.Connect(cnfg, path)
 	if err != nil {
@@ -27,6 +30,7 @@ func NewServer(cnfg config.Config, path string) (*Server, error) {
 	}, nil
 }
 
+// CreateTodo inserts todo into database
 func (s Server) CreateTodo(ctx context.Context, td entity.Todo) error {
 	_, err := s.db.ExecContext(ctx, `
 		INSERT INTO todos 
@@ -42,6 +46,7 @@ func (s Server) CreateTodo(ctx context.Context, td entity.Todo) error {
 	return nil
 }
 
+// GetTodo fetches todo by id. If there is not todo by the given ID, it returns customerr.ERR_TODO_NOT_EXIST
 func (s Server) GetTodo(ctx context.Context, id uuid.UUID) (entity.Todo, error) {
 	var td entity.Todo
 	exist := s.CheckIfExists(ctx, id)
@@ -59,6 +64,8 @@ func (s Server) GetTodo(ctx context.Context, id uuid.UUID) (entity.Todo, error) 
 	return td, nil
 }
 
+// MarkAsDone updates todo's is_done field by changing it to true. 
+// If there is not todo by the given ID, it returns customerr.ERR_TODO_NOT_EXIST
 func (s Server) MarkAsDone(ctx context.Context, id uuid.UUID) error {
 	exist := s.CheckIfExists(ctx, id)
 	if !exist {
@@ -76,6 +83,8 @@ func (s Server) MarkAsDone(ctx context.Context, id uuid.UUID) error {
 	return nil
 }
 
+// DeleteTodo deletes todo from database by the given ID.
+// If there is not todo by the given ID, it returns customerr.ERR_TODO_NOT_EXIST
 func (s Server) DeleteTodo(ctx context.Context, id uuid.UUID) error {
 	exists := s.CheckIfExists(ctx, id)
 	if !exists {
@@ -89,6 +98,7 @@ func (s Server) DeleteTodo(ctx context.Context, id uuid.UUID) error {
 	return nil
 }
 
+// GetAllTodos fetches all todos by userID
 func (s Server) GetAllTodos(ctx context.Context, userID uuid.UUID) ([]entity.Todo, error) {
 	rows, err := s.db.QueryContext(ctx, `SELECT * FROM todos WHERE user_id=$1`, userID)
 	if err != nil {
@@ -114,6 +124,8 @@ func (s Server) GetAllTodos(ctx context.Context, userID uuid.UUID) ([]entity.Tod
 	return tds, nil
 }
 
+// UpdateTodosBody updates todo's body.
+// If there is not todo by the given ID, it returns customerr.ERR_TODO_NOT_EXIST
 func (s Server) UpdateTodosBody(ctx context.Context, id uuid.UUID, newBody string) error {
 	exists := s.CheckIfExists(ctx, id)
 	if !exists {
@@ -128,6 +140,8 @@ func (s Server) UpdateTodosBody(ctx context.Context, id uuid.UUID, newBody strin
 	return nil
 }
 
+// UpdateTodosDeadline updates todo's deadline.
+// If there is not todo by the given ID, it returns customerr.ERR_TODO_NOT_EXIST
 func (s Server) UpdateTodosDeadline(ctx context.Context, id uuid.UUID, deadline time.Time) error {
 	exists := s.CheckIfExists(ctx, id)
 	if !exists {
@@ -141,6 +155,7 @@ func (s Server) UpdateTodosDeadline(ctx context.Context, id uuid.UUID, deadline 
 	return nil
 }
 
+// DeleteDoneTodos deletes done todos by the userID
 func (s Server)  DeleteDoneTodos(ctx context.Context, userID uuid.UUID) error {
 	_, err := s.db.ExecContext(ctx, `DELETE FROM todos WHERE user_id=$1 AND is_done=true`, userID)
 	if err != nil {
@@ -150,6 +165,7 @@ func (s Server)  DeleteDoneTodos(ctx context.Context, userID uuid.UUID) error {
 	return nil
 }
 
+// DeletePassedDeadline deletes todos which's deadline have already passed
 func (s Server) DeletePassedDeadline(ctx context.Context, userID uuid.UUID) error {
 	tm := time.Now().UTC().Format(time.UnixDate)
 	now, _ := time.Parse(time.UnixDate, tm)
@@ -162,6 +178,8 @@ func (s Server) DeletePassedDeadline(ctx context.Context, userID uuid.UUID) erro
 	return nil
 }
 
+// CheckIfExists checks if the todo with given ID actually exists in database.
+// It returns true if the todo exists, otherways false
 func (s Server) CheckIfExists(ctx context.Context, id uuid.UUID) bool {
 	var exist bool
 	err := s.db.QueryRowContext(ctx, `
@@ -179,6 +197,7 @@ func (s Server) CheckIfExists(ctx context.Context, id uuid.UUID) bool {
 	}
 }
 
+// deleteTodo this functions was written to be used as a cleanUP function inside intigrations tests
 func (s Server) deleteTodo() error {
 	_, err := s.db.Exec(`
 		DELETE FROM todos

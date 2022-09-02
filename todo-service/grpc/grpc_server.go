@@ -19,17 +19,20 @@ const (
     layout = "2006-01-02"
 )
 
+// gRPCServer holds grpc TodoService server and service of the project
 type gRPCServer struct {
 	todopb.UnimplementedTodoServiceServer
 	svc service.Service
 }
 
+// NewgRPCServer returns a new grpc server with the given service attached 
 func NewgRPCServer(svc service.Service) *gRPCServer {
 	return &gRPCServer{
 		svc: svc,
 	}
 }
 
+// CreateTodo creates a new todo with given cridentials 
 func (g *gRPCServer) CreateTodo(ctx context.Context, req *todopb.RequestTodo) (*todopb.ResponseTodo, error) {
 	id, err := uuid.Parse(req.GetUserId())
 	if err != nil {
@@ -64,6 +67,7 @@ func (g *gRPCServer) CreateTodo(ctx context.Context, req *todopb.RequestTodo) (*
 	}, nil
 }
 
+// GetTodoByID gets a todo by given ID
 func (g *gRPCServer) GetTodoByID(ctx context.Context, req *todopb.RequestTodoID) (*todopb.ResponseTodo, error) {
 	id, err := uuid.Parse(req.GetId())
 	if err != nil {
@@ -92,6 +96,7 @@ func (g *gRPCServer) GetTodoByID(ctx context.Context, req *todopb.RequestTodoID)
 
 }
 
+// MarkAsDone marks todo as done by the given todo ID
 func (g *gRPCServer) MarkAsDone(ctx context.Context, req *todopb.RequestTodoID) (*todopb.Empty, error) {
 	id, err := uuid.Parse(req.GetId())
 	if err != nil {
@@ -112,6 +117,7 @@ func (g *gRPCServer) MarkAsDone(ctx context.Context, req *todopb.RequestTodoID) 
 	return &todopb.Empty{}, nil
 }
 
+// DeleteTodoByID deletes todo by the given ID
 func (g *gRPCServer) DeleteTodoByID(ctx context.Context, req *todopb.RequestTodoID) (*todopb.Empty, error)  {
 	id, err := uuid.Parse(req.GetId())
 	if err != nil {
@@ -130,6 +136,7 @@ func (g *gRPCServer) DeleteTodoByID(ctx context.Context, req *todopb.RequestTodo
 	return &todopb.Empty{}, nil
 }
 
+// GetAllTodos gets all todos by the user ID 
 func (g *gRPCServer) GetAllTodos(ctx context.Context, req *todopb.RequestUserID) (*todopb.ResponseAllTodos, error)  {
 	id, err := uuid.Parse(req.GetId())
 	if err != nil {
@@ -159,6 +166,7 @@ func (g *gRPCServer) GetAllTodos(ctx context.Context, req *todopb.RequestUserID)
 	}, nil
 }
 
+// UpdateTodosBody updates todo's body by the ID 
 func (g *gRPCServer) UpdateTodosBody(ctx context.Context, req *todopb.RequestUpdateTodosBody) (*todopb.Empty, error)  {
 	id, err := uuid.Parse(req.GetId())
 	if err != nil {
@@ -179,6 +187,7 @@ func (g *gRPCServer) UpdateTodosBody(ctx context.Context, req *todopb.RequestUpd
 	return &todopb.Empty{}, nil
 }
 
+// UpdateTodosDeadline updates todo's deadline by the ID
 func (g *gRPCServer) UpdateTodosDeadline(ctx context.Context, req *todopb.RequestUpdateTodosDeadline) (*todopb.Empty, error) {
 	id, err := uuid.Parse(req.GetId())
 	if err != nil {
@@ -205,6 +214,7 @@ func (g *gRPCServer) UpdateTodosDeadline(ctx context.Context, req *todopb.Reques
 	return &todopb.Empty{}, nil
 }
 
+// DeleteDoneTodos deletes all todos by userID which was marked as done
 func (g *gRPCServer) DeleteDoneTodos(ctx context.Context, req *todopb.RequestUserID) (*todopb.Empty, error) {
 	id, err := uuid.Parse(req.GetId())
 	if err != nil {
@@ -221,6 +231,7 @@ func (g *gRPCServer) DeleteDoneTodos(ctx context.Context, req *todopb.RequestUse
 	return &todopb.Empty{}, nil
 }
 
+// DeletePassedDeadline deletes all todos whichs deadline was passed 
 func (g *gRPCServer) DeletePassedDeadline(ctx context.Context, req *todopb.RequestUserID) (*todopb.Empty, error) {
 	id, err := uuid.Parse(req.GetId())
 	if err != nil {

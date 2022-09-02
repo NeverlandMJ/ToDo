@@ -29,6 +29,7 @@ func main() {
 
 }
 
+// RunGRPCServer starts grpc server on localhost:9001
 func RunGRPCServer(svc service.Service) {
 	l, err := net.Listen("tcp", "localhost:9001")
 	if err != nil {

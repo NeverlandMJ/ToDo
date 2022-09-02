@@ -8,6 +8,7 @@ import (
 	"github.com/google/uuid"
 )
 
+// Repository is a main set for database's methods 
 type Repository interface {
 	CreateTodo(ctx context.Context, td entity.Todo) error
 	GetTodo(ctx context.Context, id uuid.UUID) (entity.Todo, error)
