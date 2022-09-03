@@ -8,7 +8,7 @@ and
 
 Microservices were created with grpc. And api-gateway uses gin framework.
 
-Instructions to uses this app:
+Instructions to use this app:
 1. Run user-service and todo-service before running api-gateway (go run cmd/main.go)
 2. Open browser and type "localhost/:8080/docs/index.html" which shows swagger UI with all apis
 3. In order to use the app first user should enter his/her phone number. Immediatly after that, TOTP code will be sent to user's phone number. User should enter the sent code along with his/her phone number to sign up. P.S. Code expires in 1 minute.
