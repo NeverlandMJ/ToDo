@@ -13,6 +13,7 @@ type message struct {
 	Success bool   `json:"success,omitempty"`
 }
 
+// Authentication middleware for authentication
 func Authentication(c *gin.Context) {
 	cook, err := c.Request.Cookie("token")
 	if err != nil {

@@ -4,6 +4,7 @@ import (
 	"github.com/go-redis/redis"
 )
 
+// NewRedisClient creates redis client
 func NewRedisClient() (*redis.Client, error) {
 
 	client := redis.NewClient(&redis.Options{

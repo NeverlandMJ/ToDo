@@ -5,6 +5,7 @@ import (
 	"github.com/NeverlandMJ/ToDo/api-gateway/api"
 )
 
+// default hosts urls for services
 const (
 	userServiceURL = "localhost:9000"
 	todoServiceURL = "localhost:9001"
