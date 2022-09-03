@@ -1,0 +1,605 @@
+definitions:
+  api.message:
+    properties:
+      message: {}
+      success:
+        type: boolean
+    type: object
+  entity.ReqChangePassword:
+    properties:
+      new_password:
+        type: string
+      old_password:
+        type: string
+    type: object
+  entity.ReqChangeUsername:
+    properties:
+      user_name:
+        type: string
+    type: object
+  entity.ReqCreateTodo:
+    properties:
+      body:
+        example: wake up early
+        type: string
+      deadline:
+        example: Mon Sep 12 6:30:00 UTC 2022
+        type: string
+    type: object
+  entity.ReqPhone:
+    properties:
+      phone:
+        example: "+998937776655"
+        type: string
+    type: object
+  entity.ReqSignIn:
+    properties:
+      password:
+        example: jsahbdshdaa
+        type: string
+      user_name:
+        example: mono_liza_doggy
+        type: string
+    type: object
+  entity.ReqSignUp:
+    properties:
+      code:
+        example: "183003"
+        type: string
+      phone:
+        example: "+998937776655"
+        type: string
+    type: object
+  entity.ReqUpdateBody:
+    properties:
+      body:
+        example: make a cake
+        type: string
+      todo_id:
+        example: eeebcf44-593c-4b19-9dd9-bd83d30d4681
+        type: string
+    type: object
+  entity.ReqUpdateDeadline:
+    properties:
+      deadline:
+        example: Mon Sep 12 6:30:00 UTC 2022
+        type: string
+      todo_id:
+        example: eeebcf44-593c-4b19-9dd9-bd83d30d4681
+        type: string
+    type: object
+  entity.RespTodo:
+    properties:
+      body:
+        type: string
+      created_at:
+        type: string
+      deadline:
+        type: string
+      id:
+        type: string
+      is_done:
+        type: boolean
+      user_id:
+        type: string
+    type: object
+  entity.RespUser:
+    properties:
+      password:
+        type: string
+      user_name:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /api/v1/todopb/create:
+    post:
+      consumes:
+      - application/json
+      description: create todo
+      parameters:
+      - description: todo's body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.ReqCreateTodo'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.RespTodo'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/api.message'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.message'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/api.message'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.message'
+      summary: Create todo
+      tags:
+      - todo
+  /api/v1/todopb/delete/{todo-id}:
+    delete:
+      description: Delete todo by todo's ID
+      parameters:
+      - description: Todo ID
+        in: path
+        name: todo-id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.message'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/api.message'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.message'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.message'
+      summary: Delete todo
+      tags:
+      - todo
+  /api/v1/todopb/delete/done:
+    delete:
+      description: Delete todos which were marked as done
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.message'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/api.message'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.message'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.message'
+      summary: Delete done
+      tags:
+      - todo
+  /api/v1/todopb/delete/passed:
+    delete:
+      description: Delete todos which's deadline had already passed
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.message'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/api.message'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.message'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.message'
+      summary: Delete passed deadline
+      tags:
+      - todo
+  /api/v1/todopb/done/{todo-id}:
+    put:
+      description: Mark todo as done by todo's ID
+      parameters:
+      - description: Todo ID
+        in: path
+        name: todo-id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.message'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/api.message'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.message'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.message'
+      summary: Mark as done
+      tags:
+      - todo
+  /api/v1/todopb/get/{todo-id}:
+    get:
+      description: get todo by id
+      parameters:
+      - description: Todo ID
+        in: path
+        name: todo-id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.RespTodo'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/api.message'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.message'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.message'
+      summary: Get todo
+      tags:
+      - todo
+  /api/v1/todopb/get/todos:
+    get:
+      description: Get all todo by userID
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/entity.RespTodo'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/api.message'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.message'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.message'
+      summary: Get all todos
+      tags:
+      - todo
+  /api/v1/todopb/update/body/:
+    put:
+      description: Update todo's body
+      parameters:
+      - description: todo's body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.ReqUpdateBody'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.message'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/api.message'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.message'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.message'
+      summary: Update todo's body
+      tags:
+      - todo
+  /api/v1/todopb/update/deadline/:
+    put:
+      description: Update todo's deadline
+      parameters:
+      - description: todo's body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.ReqUpdateDeadline'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.message'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/api.message'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.message'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.message'
+      summary: Update todo's deadline
+      tags:
+      - todo
+  /api/v1/userpb/change/password/:
+    put:
+      consumes:
+      - application/json
+      description: change user's password
+      parameters:
+      - description: old and new password
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.ReqChangePassword'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.message'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/api.message'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/api.message'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.message'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/api.message'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.message'
+      summary: Change password
+      tags:
+      - user
+  /api/v1/userpb/change/user-name/:
+    put:
+      consumes:
+      - application/json
+      description: change user's user_name
+      parameters:
+      - description: new user_name
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.ReqChangeUsername'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.message'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/api.message'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/api.message'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.message'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/api.message'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.message'
+      summary: Change user_name
+      tags:
+      - user
+  /api/v1/userpb/delete/account/:
+    delete:
+      consumes:
+      - application/json
+      description: delete current account
+      parameters:
+      - description: user signs in
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.ReqSignIn'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.message'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/api.message'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/api.message'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.message'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/api.message'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.message'
+      summary: delete account
+      tags:
+      - user
+  /auth/v1/userpb/register:
+    post:
+      consumes:
+      - application/json
+      description: sign up with TOTP
+      parameters:
+      - description: user's phone number and one time code which was sent to user's
+          phone
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.ReqSignUp'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.RespUser'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/api.message'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.message'
+        "408":
+          description: Request Timeout
+          schema:
+            $ref: '#/definitions/api.message'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/api.message'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.message'
+      summary: Sign up
+      tags:
+      - auth
+  /auth/v1/userpb/send-code:
+    post:
+      consumes:
+      - application/json
+      description: send one time code to user's phone
+      parameters:
+      - description: user's phone number
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.ReqPhone'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.message'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.message'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.message'
+      summary: Send TOTP
+      tags:
+      - auth
+  /auth/v1/userpb/sign-in:
+    post:
+      consumes:
+      - application/json
+      description: sign in with default user_name and password
+      parameters:
+      - description: user_name and password
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.ReqSignIn'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.message'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/api.message'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.message'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/api.message'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.message'
+      summary: Sign in
+      tags:
+      - auth
+swagger: "2.0"

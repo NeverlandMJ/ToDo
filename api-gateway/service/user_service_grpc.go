@@ -63,7 +63,7 @@ func (c userServiceGRPCClient) SendCode(ctx context.Context, ph entity.ReqPhone)
 	}, nil
 }
 
-func (c userServiceGRPCClient) RegisterUser(ctx context.Context, code entity.ReqCode) (entity.RespUser, error) {
+func (c userServiceGRPCClient) RegisterUser(ctx context.Context, code entity.ReqSignUp) (entity.RespUser, error) {
 	phone, err := c.inMemoryDB.Get(code.Phone).Result()
 	if err != nil && phone == "" {
 		return entity.RespUser{}, customErr.ERR_CODE_HAS_EXPIRED
@@ -120,4 +120,43 @@ func (c userServiceGRPCClient) SignIn(ctx context.Context, data entity.ReqSignIn
 	}
 
 	return tokenString, nil
+}
+
+func (c userServiceGRPCClient) ChangePassword(ctx context.Context, userID string, new entity.ReqChangePassword) error {
+	_, err := c.client.ChangePassword(ctx, &userpb.RequestChangePassword{
+		UserID:      userID,
+		OldPassword: new.OldPassword,
+		NewPassword: new.NewPassword,
+	})
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (c userServiceGRPCClient) ChangeUserName(ctx context.Context, userID string, new entity.ReqChangeUsername) error {
+	_, err := c.client.ChangeUserName(ctx, &userpb.RequestUserName{
+		UserID:   userID,
+		UserName: new.UserName,
+	})
+
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (c userServiceGRPCClient) DeleteAccount(ctx context.Context, userID string, auth entity.ReqSignIn) error {
+	_, err := c.client.DeleteAccount(ctx, &userpb.RequestDeleteAccount{
+		UserID:   userID,
+		Password: auth.Password,
+		UserName: auth.UserName,
+	})
+
+	if err != nil {
+		return err
+	}
+	return nil
 }

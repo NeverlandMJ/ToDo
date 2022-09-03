@@ -16,7 +16,7 @@ func (rp ReqPhone) CheckReqPhone() error {
 }
 
 // CheckReqCode checks if the users inputs for sign up is valid
-func (rc ReqCode) CheckReqCode() error {
+func (rc ReqSignUp) CheckReqCode() error {
 	if rc.Code == "" || rc.Phone == "" {
 		return fmt.Errorf("%w: empty input", customErr.ERR_INVALID_INPUT)
 	}
@@ -47,3 +47,46 @@ func (rct ReqCreateTodo) CheckReqCreateTodo() error {
 	return nil
 }
 
+// CheckReqUpdateBody is used to check if user's input is valid
+func (r ReqUpdateBody) CheckReqUpdateBody() error {
+	if r.Body == "" {
+		return fmt.Errorf("%w: empty body", customErr.ERR_INVALID_INPUT)
+	}
+	if r.TodoID == "" {
+		return fmt.Errorf("%w: empty todo id", customErr.ERR_INVALID_INPUT)
+	}
+
+	return nil
+}
+
+// CheckReqUpdateDeadline is used to check if user's input is valid
+func (r ReqUpdateDeadline) CheckReqUpdateDeadline() error {
+	if r.Deadline == "" {
+		return fmt.Errorf("%w: empty deadline", customErr.ERR_INVALID_INPUT)
+	}
+	if r.TodoID == "" {
+		return fmt.Errorf("%w: empty todo id", customErr.ERR_INVALID_INPUT)
+	}
+
+	return nil
+}
+
+// CheckReqChangePassword is used to check if user's input is valid
+func (r ReqChangePassword) CheckReqChangePassword() error {
+	if r.OldPassword == "" {
+		return fmt.Errorf("%w: empty old password", customErr.ERR_INVALID_INPUT)
+	}
+	if r.NewPassword == "" {
+		return fmt.Errorf("%w: empty new password", customErr.ERR_INVALID_INPUT)
+	}
+
+	return nil
+}
+
+// CheckReqChangeUsername is used to check if user's input is valid
+func (r ReqChangeUsername) CheckReqChangeUsername() error {
+	if r.UserName == "" {
+		return fmt.Errorf("%w: empty user name", customErr.ERR_INVALID_INPUT)
+	}
+	return nil
+}

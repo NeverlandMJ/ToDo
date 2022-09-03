@@ -87,3 +87,84 @@ func (c todoServiceGRPCClient) GetTodoByID(ctx context.Context, userID, todoID s
 		IsDone: resp.IsDone,
 	}, nil
 }
+
+func (c todoServiceGRPCClient) DeleteTodoByID(ctx context.Context, userID, todoID string) error {
+	_, err := c.client.DeleteTodoByID(ctx, &todopb.RequestDeleteTodo{
+		UserId: userID,
+		TodoId: todoID,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (c todoServiceGRPCClient) GetAllTodos(ctx context.Context, userID string) (tds []entity.RespTodo, err error) {
+	resp, err := c.client.GetAllTodos(ctx, &todopb.RequestUserID{
+		Id: userID,
+	})
+
+	if err != nil {
+		return nil, err
+	}
+	
+	for _, grpcTD := range resp.ResponseTodos {
+		td := entity.RespTodo{}
+		
+		td.ID = grpcTD.Id
+		td.UserID = grpcTD.UserID
+		td.Body = grpcTD.Body
+		td.CreatedAt = grpcTD.CreatedAt
+		td.Deadline = grpcTD.Deadline
+		td.IsDone = grpcTD.IsDone
+
+		tds = append(tds, td)
+	}
+	
+	return tds, nil
+}
+
+func (c todoServiceGRPCClient) UpdateTodosBody(ctx context.Context, userID string, new entity.ReqUpdateBody) error {
+	_, err := c.client.UpdateTodosBody(ctx, &todopb.RequestUpdateTodosBody{
+		UserId: userID,
+		TodoId: new.TodoID,
+		NewBody: new.Body,
+	})
+	if err != nil {
+		return  err
+	}
+
+	return nil
+}
+
+func (c todoServiceGRPCClient) UpdateTodosDeadline(ctx context.Context, userID string, new entity.ReqUpdateDeadline) error {
+	_, err := c.client.UpdateTodosDeadline(ctx, &todopb.RequestUpdateTodosDeadline{
+		TodoId: new.TodoID,
+		UserId: userID,
+		NewDeadline: new.Deadline,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (c todoServiceGRPCClient) DeleteDoneTodos(ctx context.Context, userID string) error {
+	_, err := c.client.DeleteDoneTodos(ctx, &todopb.RequestUserID{
+		Id: userID,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (c todoServiceGRPCClient) DeletePassedDeadline(ctx context.Context, userID string) error {
+	_, err := c.client.DeletePassedDeadline(ctx, &todopb.RequestUserID{
+		Id: userID,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
