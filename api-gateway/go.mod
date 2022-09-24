@@ -48,6 +48,8 @@ require (
 	github.com/gin-gonic/gin v1.8.1
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/uuid v1.3.0
+	github.com/joho/godotenv v1.4.0
+	github.com/kelseyhightower/envconfig v1.4.0
 	golang.org/x/net v0.0.0-20220826154423-83b083e8dc8b // indirect
 	golang.org/x/sys v0.0.0-20220829200755-d48e67d00261 // indirect
 	golang.org/x/text v0.3.7 // indirect

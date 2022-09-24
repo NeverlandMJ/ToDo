@@ -32,9 +32,9 @@ type TodoServiceProvider interface {
 	DeletePassedDeadline(ctx context.Context, userID string) error
 }
 
-func NewProvider(userServiceURL, todoServiceURL string) Provider {
+func NewProvider(userServiceURL, todoServiceURL, redisURL string) Provider {
 	return Provider{
-		UserServiceProvider: NewGRPCClientUser(userServiceURL),
+		UserServiceProvider: NewGRPCClientUser(userServiceURL, redisURL),
 		TodoServiceProvider: NewGRPCClientTodo(todoServiceURL),
 	}
 }

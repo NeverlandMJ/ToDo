@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/NeverlandMJ/ToDo/api-gateway/pkg/entity"
@@ -25,6 +26,7 @@ func NewGRPCClientTodo(url string) todoServiceGRPCClient {
 		grpc.WithBlock(),
 	)
 	if err != nil {
+		fmt.Println("Todo error", err)
 		panic(err)
 	}
 

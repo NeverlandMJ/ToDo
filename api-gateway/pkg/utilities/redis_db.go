@@ -5,10 +5,10 @@ import (
 )
 
 // NewRedisClient creates redis client
-func NewRedisClient() (*redis.Client, error) {
+func NewRedisClient(addr string) (*redis.Client, error) {
 
 	client := redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
+		Addr:     addr,
 		Password: "",
 		DB:       0,
 	})

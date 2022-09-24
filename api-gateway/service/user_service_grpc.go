@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/NeverlandMJ/ToDo/api-gateway/pkg/auth"
@@ -20,7 +21,7 @@ type userServiceGRPCClient struct {
 	inMemoryDB *redis.Client
 }
 
-func NewGRPCClientUser(url string) userServiceGRPCClient {
+func NewGRPCClientUser(url string, redisAddr string) userServiceGRPCClient {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 
@@ -31,13 +32,15 @@ func NewGRPCClientUser(url string) userServiceGRPCClient {
 		grpc.WithBlock(),
 	)
 	if err != nil {
+		fmt.Println("User error: ", err)
 		panic(err)
 	}
 
 	client := userpb.NewUserServiceClient(conn)
 
-	db, err := utilities.NewRedisClient()
+	db, err := utilities.NewRedisClient(redisAddr)
 	if err != nil {
+		fmt.Println("Redis error", err)
 		panic(err)
 	}
 
