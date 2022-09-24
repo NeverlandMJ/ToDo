@@ -210,8 +210,9 @@ func newServer(t *testing.T) *Server {
 			PostgresUser:     "sunbula",
 			PostgresPassword: "2307",
 			PostgresDB:       "todo_test",
+			PostgresMigrationsPath: "file://./../migrations",
 		},
-		"file://./../migrations",
+		
 	)
 
 	require.NoError(t, err)

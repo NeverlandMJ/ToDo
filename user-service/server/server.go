@@ -21,8 +21,8 @@ type Server struct {
 
 // NewServer returns a new Server with working database attached to it.
 // If an error occuras while connecting to database, it returns an error
-func NewServer(cnfg config.Config, path string) (*Server, error) {
-	conn, err := database.Connect(cnfg, path)
+func NewServer(cnfg config.Config) (*Server, error) {
+	conn, err := database.Connect(cnfg)
 	if err != nil {
 		return nil, err
 	}

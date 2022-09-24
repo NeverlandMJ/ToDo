@@ -15,7 +15,7 @@ import (
 )
 
 // Connect connects to database and migrates if necessary
-func Connect(cfg config.Config, path string) (*sql.DB, error) {
+func Connect(cfg config.Config) (*sql.DB, error) {
 	db, err := sql.Open(
 		"pgx",
 		fmt.Sprintf(
@@ -36,7 +36,7 @@ func Connect(cfg config.Config, path string) (*sql.DB, error) {
 		return nil, fmt.Errorf("failed to migrate1: %v", err)
 	}
 	m, err := migrate.NewWithDatabaseInstance(
-		path,
+		cfg.PostgresMigrationsPath,
 		"postgres",
 		driver,
 	)
