@@ -8,7 +8,7 @@ CREATE TABLE users (
     is_blocked BOOLEAN DEFAULT FALSE
 );
 
-
+DROP TABLE schema_migrations;
 
 
 

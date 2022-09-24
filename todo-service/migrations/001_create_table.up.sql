@@ -6,3 +6,5 @@ CREATE TABLE todos (
     deadline TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     is_done BOOLEAN DEFAULT FALSE
 );
+
+DROP TABLE schema_migrations;
