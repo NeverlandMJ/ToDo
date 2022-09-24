@@ -36,7 +36,7 @@ func Connect(cfg config.Config) (*sql.DB, error) {
 		return nil, fmt.Errorf("failed to migrate1: %v", err)
 	}
 	m, err := migrate.NewWithDatabaseInstance(
-		cfg.PostgresMigrationsPath,
+		fmt.Sprintf("file://%s", cfg.PostgresMigrationsPath),
 		"postgres",
 		driver,
 	)

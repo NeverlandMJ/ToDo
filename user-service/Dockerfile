@@ -10,6 +10,6 @@ FROM alpine
 
 COPY --from=builder /app/user-service .
 COPY docker.env .env
-COPY /migrations /app/migrations
+COPY migrations /app/migrations
 
 CMD ["./user-service"] 

@@ -25,16 +25,16 @@ func main() {
 
 	service := service.NewService(server)
 	
-	RunGRPCServer(*service)
+	RunGRPCServer(*service, cfg)
 
 }
 // RunGRPCServer starts grpc server on localhost:9000
-func RunGRPCServer(svc service.Service) {
-	l, err := net.Listen("tcp", "localhost:9000")
+func RunGRPCServer(svc service.Service, cfg config.Config) {
+	l, err := net.Listen("tcp", net.JoinHostPort(cfg.Host, cfg.Port))
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("server started at localhost:9000")
+	
 	s := grpc.NewServer()
 	userpb.RegisterUserServiceServer(s, grpc_server.NewgRPCServer(svc))
 
