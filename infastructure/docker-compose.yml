@@ -1,0 +1,47 @@
+version: '3.1'
+
+services:
+  postgres: 
+    image: postgres:14
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_USER: postgres
+      POSTGRES_DB: postgres
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+    volumes:
+      - "./init.sql:/docker-entrypoint-initdb.d/init.sql"
+      - "./postgres:/var/lib/postgresql/data"
+  redis:
+    image: redis:latest
+    restart: always
+    ports: 
+      - "6379:6379"
+  user-service:
+    image: user-service:latest
+    restart: always
+    env_file: 
+      - user-service.env
+    depends_on:
+      - postgres
+  todo-service:
+    image: todo-service:latest
+    restart: always
+    env_file:
+      - todo-service.env
+    depends_on:
+      - postgres
+      - user-service
+  api-gateway:
+    image: api-gateway:latest
+    restart: always
+    ports:
+      - "8080:8080"
+    env_file:
+      - api-gateway.env
+    depends_on:
+      - user-service
+      - todo-service
+      - redis
